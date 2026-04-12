@@ -3,283 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Линеарна Алгебра - Материјали</title>
+    <title>StudyBuddy - Почетна</title>
     <link rel="stylesheet" href="style.css">
     <script src="script.js"></script>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
-        /* Homepage specific styles */
         .home-container {
-            max-width: 800px;
+            max-width: 980px;
             margin: 0 auto;
-            padding: 40px 20px;
-            text-align: center;
+            padding: 48px 20px;
         }
 
         .hero {
-            margin-bottom: 60px;
-            animation: fadeInDown 0.8s ease-out;
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .hero h1 {
-            font-size: 3.5em;
-            margin-bottom: 0.5em;
-            background: linear-gradient(135deg, var(--primary-color), #9b59b6, var(--accent-color));
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 800;
-        }
-
-        .hero p {
-            font-size: 1.3em;
-            color: var(--text-color);
-            opacity: 0.85;
-        }
-
-        .stats-row {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-
-        .stat-item {
             text-align: center;
-            animation: fadeIn 1s ease-out;
+            margin-bottom: 42px;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .stat-number {
-            font-size: 2.5em;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .stat-label {
-            font-size: 0.9em;
+        .hero .kicker {
+            display: inline-block;
+            margin: 0 0 10px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border-color);
+            background: var(--secondary-color);
+            font-size: 0.85rem;
+            letter-spacing: 0.02em;
             color: var(--text-color);
-            opacity: 0.7;
-            margin-top: 5px;
-        }
-
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
-
-        /* Desktop: keep the same card width and fit 3 in a row */
-        @media (min-width: 1000px) {
-            .home-container {
-                max-width: 1100px;
-            }
-
-            .cards-grid {
-                grid-template-columns: repeat(3, minmax(300px, 1fr));
-            }
-        }
-
-        /* Phone: stack cards */
-        @media (max-width: 600px) {
-            .cards-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .hero h1 {
-                font-size: 2.5em;
-            }
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            padding: 35px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-decoration: none;
-            color: var(--text-color);
-            border: 2px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 220px;
-            position: relative;
-            overflow: hidden;
-            animation: fadeInUp 0.6s ease-out backwards;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .card:nth-child(1) { animation-delay: 0.1s; }
-        .card:nth-child(2) { animation-delay: 0.2s; }
-        .card:nth-child(3) { animation-delay: 0.3s; }
-
-        .card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            border-color: var(--primary-color);
-        }
-
-        .card h2 {
-            font-size: 1.9em;
-            margin-bottom: 15px;
-            color: var(--primary-color);
-            font-weight: 700;
-        }
-
-        .card .icon {
-            font-size: 4em;
-            margin-bottom: 20px;
-            transition: transform 0.3s ease;
-        }
-
-        .card:hover .icon {
-            transform: scale(1.15) rotate(5deg);
-        }
-
-        .card p {
-            font-size: 1em;
-            line-height: 1.6;
             opacity: 0.9;
         }
 
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: linear-gradient(90deg, var(--primary-color), #9b59b6, var(--accent-color));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .card:hover::before {
-            opacity: 1;
-        }
-
-        .card-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: var(--primary-color);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.75em;
-            font-weight: 600;
-        }
-
-        .features-section {
-            margin-top: 80px;
-            padding: 40px 20px;
-            background: var(--secondary-color);
-            border-radius: 16px;
-            animation: fadeIn 1.2s ease-out;
-        }
-
-        .features-section h3 {
-            font-size: 1.8em;
-            margin-bottom: 30px;
-            color: var(--heading-color);
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            text-align: left;
-        }
-
-        .feature-item {
-            display: flex;
-            align-items: start;
-            gap: 15px;
-        }
-
-        .feature-icon {
-            font-size: 1.8em;
-            flex-shrink: 0;
-        }
-
-        .feature-content h4 {
-            margin: 0 0 5px 0;
-            color: var(--heading-color);
-            font-size: 1.1em;
-        }
-
-        .feature-content p {
+        .hero h1 {
             margin: 0;
-            font-size: 0.9em;
-            opacity: 0.8;
+            border-bottom: none;
+            font-size: clamp(2.2rem, 6vw, 4rem);
+            line-height: 1.1;
+            color: var(--heading-color);
+        }
+
+        .hero p {
+            margin: 14px auto 0;
+            max-width: 700px;
+            font-size: 1.08rem;
+            opacity: 0.86;
+        }
+
+        .choice-grid {
+            display: grid;
+            gap: 18px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .choice-card {
+            display: block;
+            text-decoration: none;
+            color: var(--text-color);
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 20px var(--shadow-color);
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .choice-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary-color);
+            box-shadow: 0 14px 28px var(--shadow-color);
+            text-decoration: none;
+        }
+
+        .choice-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .choice-card h2 {
+            margin: 0;
+            font-size: 1.45rem;
+            border-bottom: none;
+            padding: 0;
+        }
+
+        .choice-card p {
+            margin: 8px 0 0;
+            font-size: 0.98rem;
+            opacity: 0.86;
         }
     </style>
 </head>
 <body data-page="home">
     <nav class="study-nav">
         <div class="nav-left">
-            <h2 class="nav-title">Линеарна Алгебра</h2>
+            <h2 class="nav-title">StudyBuddy</h2>
         </div>
         <div class="nav-right">
-            <a href="index.html" class="nav-btn">Почетна</a>
-            <a href="first_midterm.html" class="nav-btn">Прв Колоквиум</a>
-            <a href="second_midterm.html" class="nav-btn">Втор Колоквиум</a>
-            <a href="problems.html" class="nav-btn">Задачи</a>
+            <a href="linear_algebra.html" class="nav-btn">Линеарна Алгебра</a>
+            <a href="data_warehouses.html" class="nav-btn">Data Warehouses &amp; Analytics</a>
         </div>
     </nav>
-    <div class="home-container">
-        <div class="hero">
-            <h1>Линеарна Алгебра</h1>
-            <p>Подготвителни материјали за колоквиуми</p>
-        </div>
-        
-        <div class="cards-grid">
-            <a href="first_midterm.html" class="card">
-                <div class="icon">📐</div>
-                <h2>Прв Колоквиум</h2>
-                <p>Матрици, Системи равенки, Векторска алгебра</p>
+
+    <main class="home-container">
+        <section class="hero">
+            <p class="kicker">Welcome</p>
+            <h1>StudyBuddy</h1>
+            <p>Избери студиски сет и продолжи директно до материјалите со пребарување, обележувачи и автоматска содржина.</p>
+        </section>
+
+        <section class="choice-grid" aria-label="Избор на предмет">
+            <a href="linear_algebra.html" class="choice-card">
+                <div class="choice-icon">📐</div>
+                <h2>Линеарна Алгебра</h2>
+                <p>Прв и втор колоквиум, плус галерија со испитни задачи.</p>
             </a>
-            <a href="second_midterm.html" class="card">
-                <div class="icon">🔢</div>
-                <h2>Втор Колоквиум</h2>
-                <p>Детерминанти, Векторски простори, Сопствени вредности</p>
+
+            <a href="data_warehouses.html" class="choice-card">
+                <div class="choice-icon">🏛️</div>
+                <h2>Data Warehouses &amp; Analytics</h2>
+                <p>Комплетен study set: архитектури, моделирање, ETL/ELT и аналитички концепти.</p>
             </a>
-            <a href="problems.html" class="card">
-                <div class="icon">🧩</div>
-                <h2>Испитни задачи</h2>
-                <p>Збирка на испитни задачи (слики) во прегледна галерија</p>
-            </a>
-        </div>
-    </div>
+        </section>
+    </main>
 </body>
 </html>

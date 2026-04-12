@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="mk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Warehouses & Analytics</title>
+
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+    <script src="enhanced-features.js"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body data-page="study">
+    <nav class="study-nav">
+        <div class="nav-left">
+            <a href="index.html" class="nav-btn">&larr; Home</a>
+            <h2 class="nav-title">Data Warehouses & Analytics</h2>
+        </div>
+        <div class="nav-right">
+            <a href="linear_algebra.html" class="nav-btn">Linear Algebra</a>
+            <a href="data_warehouses.html" class="nav-btn">Data Warehouses</a>
+            <button id="search-toggle" class="nav-btn" title="Search">Search</button>
+            <button id="bookmark-toggle" class="nav-btn" title="Bookmarks">Bookmarks</button>
+        </div>
+    </nav>
+
+    <div id="search-panel" class="side-panel">
+        <div class="panel-header">
+            <button class="panel-close">&times;</button>
+        </div>
+        <div class="panel-content">
+            <input type="text" id="search-input" placeholder="Search in page..." />
+            <div id="search-results"></div>
+        </div>
+    </div>
+
+    <div id="bookmarks-panel" class="side-panel">
+        <div class="panel-header">
+            <button class="panel-close">&times;</button>
+        </div>
+        <div class="panel-content">
+            <p class="panel-hint">Click a heading to bookmark it</p>
+            <div id="bookmarks-list"></div>
+        </div>
+    </div>
+
+    <div class="container">
+<h1>📊 Data Platform Architectures &amp; Dimensional Modeling</h1>
+<p>Data platform architectures are fundamental for managing and analyzing enterprise data. A <span style="color: #59a8fb;"><strong>data warehouse (DW)</strong></span> serves as a central repository, optimized for analytical queries, contrasting sharply with operational databases designed for transactional processing. Understanding the interplay between various data architectures, processing patterns like OLTP and OLAP, and modern concepts such as data lakes and lakehouses is crucial for effective data engineering.</p>
+<hr />
+<h2>🏛️ Data Warehouse Fundamentals</h2>
+<p>A <span style="color: #59a8fb;"><strong>data warehouse</strong></span> is a core component of business intelligence, providing a structured, queryable repository for historical data. It addresses the limitations of directly querying operational databases, which are typically normalized for transactional efficiency and thus perform poorly on complex analytical queries.</p>
+<img src="images/datawarehouses/dw-001.png" alt="Data Warehouse Architecture" style="max-width: 500px; margin-left: 0" />
+<h3>🚨 The Challenge Without a Data Warehouse</h3>
+<p>Directly querying <span style="color: #59a8fb;"><strong>operational databases</strong></span> (OLTP systems) for analytical purposes presents several issues:</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Slow Query Performance</strong></span>: Normalized data structures (3NF) are not optimized for large, complex analytical queries.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>System Strain</strong></span>: Analytical queries can overtax operational systems, impacting real-time transactions.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Complex Joins</strong></span>: Extensive joins are often required to retrieve meaningful analytical insights from normalized data.</p></li>
+</ul>
+<p>A data warehouse overcomes these challenges by storing data in formats optimized for <span style="color: #59a8fb;"><strong>reading, aggregating, and querying large volumes of historical data</strong></span>.</p>
+<h3>🔄 OLTP vs OLAP Access Patterns</h3>
+<p><span style="color: #59a8fb;"><strong>Online Transaction Processing (OLTP)</strong></span> and <span style="color: #59a8fb;"><strong>Online Analytical Processing (OLAP)</strong></span> represent fundamentally different data access patterns, necessitating distinct architectural approaches.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>OLTP Systems</strong></span>:</p><ul>
+<li><p>Handle <span style="color: #59a8fb;"><strong>frequent, small transactions</strong></span>.</p></li>
+<li><p>Optimized for <span style="color: #59a8fb;"><strong>individual transactions</strong></span> and row-level data operations.</p></li>
+<li><p>Focus on <span style="color: #59a8fb;"><strong>real-time data modifications</strong></span>.</p></li>
+<li><p>Examples: order entry, banking transactions.</p></li>
+</ul></li>
+<li><p><span style="color: #59a8fb;"><strong>OLAP Systems</strong></span>:</p><ul>
+<li><p>Process <span style="color: #59a8fb;"><strong>complex queries</strong></span> across vast datasets.</p></li>
+<li><p>Organize data into <span style="color: #59a8fb;"><strong>multidimensional cubes</strong></span> (time, geography, product categories).</p></li>
+<li><p>Enable interactive operations like <span style="color: #59a8fb;"><strong>slice, dice, drill down, and pivot</strong></span>.</p></li>
+<li><p>Provide <span style="color: #59a8fb;"><strong>rapid aggregation</strong></span> and pre-calculated summaries for fast responses.</p></li>
+<li><p>Support <span style="color: #59a8fb;"><strong>complex analytical functions</strong></span>.</p></li>
+<li><p>Data warehouses often use <span style="color: #59a8fb;"><strong>dimensional modeling</strong></span>, organizing data into <span style="color: #59a8fb;"><strong>fact tables</strong></span> (measurements) and <span style="color: #59a8fb;"><strong>dimension tables</strong></span> (context) for intuitive analysis.</p></li>
+</ul></li>
+</ul>
+<h3>📊 When OLTP Systems Fall Short: The Need for OLAP</h3>
+<p>Operational databases, while excellent for transactions, struggle with deep analytical questions that require aggregating vast historical datasets across multiple dimensions. This is where <span style="color: #59a8fb;"><strong>data warehouses</strong></span> and <span style="color: #59a8fb;"><strong>OLAP systems</strong></span> excel.</p>
+<p>Examples of complex analytical questions that OLTP systems struggle with:</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Complex Sales Trends</strong></span>: Analyzing year-over-year sales growth by product line, region, and customer segment to identify seasonal patterns.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Predictive Inventory</strong></span>: Forecasting optimal inventory levels by combining historical sales, supplier lead times, and promotional impacts.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Customer Value Metrics</strong></span>: Calculating the total revenue a customer is expected to generate over their relationship with the business.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Financial Performance</strong></span>: Comparing budgeted expenditures and revenues against actual figures across departments for variance analysis.</p></li>
+</ul>
+<h3>📝 Defining the Data Warehouse</h3>
+<p>Prominent figures in data management have provided foundational definitions:</p>
+<img src="images/datawarehouses/dw-002.png" alt="Data Warehouse Definitions" style="max-width: 500px; margin-left: 0" />
+<p>These definitions emphasize that a data warehouse is structured data designed to support <span style="color: #59a8fb;"><strong>decision-making</strong></span> and <span style="color: #59a8fb;"><strong>business intelligence</strong></span>.</p>
+<h3>🏷️ Key Traditional Data Warehousing Terminology</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Data Warehouse</strong></span>: A <span style="color: #59a8fb;"><strong>centralized repository</strong></span> for integrated, historical data, designed for analytical reporting and business intelligence.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Normalized Model</strong></span>: A database design approach reducing data redundancy and improving integrity, primarily for <span style="color: #59a8fb;"><strong>transactional systems</strong></span>.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>BI (Business Intelligence)</strong></span>: Tools and processes that transform raw data into <span style="color: #59a8fb;"><strong>meaningful insights</strong></span> for informed business decision-making.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Mart</strong></span>: A <span style="color: #59a8fb;"><strong>focused subset</strong></span> of a data warehouse, serving the analytical needs of a specific department or business function.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>OLAP (Online Analytical Processing)</strong></span>: Technology enabling interactive, <span style="color: #59a8fb;"><strong>multidimensional analysis</strong></span> of large volumes of data for strategic insights.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Mining Model</strong></span>: Algorithms and techniques used to discover patterns, trends, and anomalies from large datasets for <span style="color: #59a8fb;"><strong>predictive analysis</strong></span>.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Dimensional Model, Star Schema</strong></span>: A logical data model (facts + dimensions) optimizing data warehouses for <span style="color: #59a8fb;"><strong>fast, intuitive querying</strong></span>.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>ETL (Extraction, Transformation, Load)</strong></span>: The core process of moving data from source systems, cleaning/restructuring it, and loading into a data warehouse.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Ad-hoc Query</strong></span>: A query formulated on-the-fly to answer a <span style="color: #59a8fb;"><strong>specific, spontaneous business question</strong></span>.</p></li>
+</ul>
+<hr />
+<h2>🚀 Evolving Data Landscape: Key Concepts</h2>
+<p>As data volumes and varieties grow, new architectural paradigms have emerged to meet modern analytical demands.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Lakehouse Architecture</strong></span>: A <span style="color: #59a8fb;"><strong>hybrid data architecture</strong></span> combining the flexibility and cost-efficiency of <span style="color: #59a8fb;"><strong>data lakes</strong></span> with the robust data management and ACID transaction capabilities of <span style="color: #59a8fb;"><strong>data warehouses</strong></span>. It supports both structured and unstructured data for diverse analytics and machine learning.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Mesh</strong></span>: A <span style="color: #59a8fb;"><strong>decentralized data architecture</strong></span> that treats data as a product, organized by business domains. Each domain manages its own data infrastructure, products, and standards, fostering <span style="color: #59a8fb;"><strong>agility, scalability, and data ownership</strong></span>.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Lake</strong></span>: A <span style="color: #59a8fb;"><strong>centralized repository</strong></span> for massive volumes of raw, unprocessed data in its native format. It is <span style="color: #59a8fb;"><strong>schema-agnostic</strong></span>, ideal for big data analytics and machine learning.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Fabric</strong></span>: An architecture providing a <span style="color: #59a8fb;"><strong>unified, intelligent view</strong></span> of an organization&#39;s data across disparate environments (on-premise, cloud, hybrid). It integrates data management tools and leverages AI/ML for <span style="color: #59a8fb;"><strong>automated data discovery, governance, and consumption</strong></span>.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Streaming Data</strong></span>: Data generated <span style="color: #59a8fb;"><strong>continuously</strong></span> from numerous sources (IoT, web clicks, financial transactions), requiring <span style="color: #59a8fb;"><strong>immediate processing</strong></span> for instant insights.</p></li>
+</ul>
+<hr />
+<h2>⚙️ The Data Engineering Process</h2>
+<p>The data engineering process involves a series of steps to move, transform, and prepare data for analysis.</p>
+<img src="images/datawarehouses/dw-003.png" alt="Data Engineering Process" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Data Ingestion</strong></span>: Acquiring raw data from various sources.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Transformation</strong></span>: Cleaning, restructuring, and enriching data.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Serving</strong></span>: Making processed data available for analysis or applications.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Flow Orchestration</strong></span>: Managing the automated workflows.</p></li>
+</ul>
+<p>Additional key concepts in data engineering:</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Data Migration</strong></span>: Moving data between systems or environments, e.g., on-premises to cloud.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Integration</strong></span>: Consolidating information from diverse systems and IoT devices into unified data streams.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Wrangling</strong></span>: Converting raw, unstructured data into <span style="color: #59a8fb;"><strong>clean, usable formats</strong></span> for analytics and machine learning.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Database Operations</strong></span>: Copying tables, maintaining synchronization, and supporting backup/disaster recovery.</p></li>
+</ul>
+<h3>🏗️ Data Architecture - Layers</h3>
+<p>Modern data architectures, like the <span style="color: #59a8fb;"><strong>Lakehouse</strong></span>, are often layered to manage data maturity and processing.</p>
+<img src="images/datawarehouses/dw-004.png" alt="Lake House Storage Architecture" style="max-width: 500px; margin-left: 0" />
+<p>Common layers include:</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Data Sources Layer</strong></span>: Multiple data sources (OLTP, ERP, CRM, IoT, web, social media) feeding into the architecture.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Ingestion Layer</strong></span>: Real-time streaming (Kinesis, Event Hubs) and batch ingestion processes.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Storage Layer</strong></span>: Raw data storage (Data Lake - S3, ADLS) and structured storage (Data Warehouse - Redshift, Snowflake). Different zones (Landing, Raw, Trusted, Curated) for data maturity.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Processing Layer</strong></span>: Data transformation, cleansing, ETL/ELT pipelines (Spark, Databricks), quality checks, aggregation, and enrichment.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Consumption Layer</strong></span>: BI tools, APIs, Machine Learning, reports, and data science.</p></li>
+</ul>
+<h3>🏛️ Two-tier Data Warehouse Architecture</h3>
+<p>A common architectural pattern for data warehouses involves multiple tiers to separate concerns and optimize performance.</p>
+<img src="images/datawarehouses/dw-005.png" alt="Two-tier Data Warehouse Architecture" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Source Systems Layer</strong></span>: Operational and external data sources.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Staging/ETL Layer</strong></span>:</p><ul>
+<li><p><span style="color: #59a8fb;"><strong>Extract, Transform, Load</strong></span> processes.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data cleansing</strong></span> and validation.</p></li>
+<li><p>Application of <span style="color: #59a8fb;"><strong>business rules</strong></span>.</p></li>
+</ul></li>
+<li><p><span style="color: #59a8fb;"><strong>Enterprise Data Warehouse Layer (EDW)</strong></span>:</p><ul>
+<li><p><span style="color: #59a8fb;"><strong>Centralized repository</strong></span> for integrated, historical data.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Single source of truth</strong></span> for the organization.</p></li>
+<li><p>Includes <span style="color: #59a8fb;"><strong>metadata</strong></span> about ETL processes and data catalog.</p></li>
+</ul></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Marts Layer</strong></span>:</p><ul>
+<li><p><span style="color: #59a8fb;"><strong>Department-specific</strong></span> or subject-oriented subsets.</p></li>
+<li><p>Optimized for specific business functions (Sales, Finance).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Denormalized</strong></span> for query performance.</p></li>
+<li><p>Derived from the central EDW.</p></li>
+</ul></li>
+</ul>
+<h3>🌐 A Complete Data Engineering Ecosystem: Technology Perspective</h3>
+<p>A modern data engineering ecosystem integrates various components to create a unified, scalable architecture.</p>
+<img src="images/datawarehouses/dw-006.png" alt="Complete Data Engineering Ecosystem" style="max-width: 500px; margin-left: 0" />
+<p>This ecosystem includes:</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Sources</strong></span>: OLTP databases, ERP, operational apps, event collectors, logs, APIs, file/object storage.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Ingestion and Transport</strong></span>: Data replication (Fivetran, Stitch), workflow managers (Airflow), event streaming (Kafka, Kinesis), Reverse ETL.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Storage</strong></span>: Lakehouse, Data Lake (Delta, Iceberg, Hudi, S3), Data Warehouse (Snowflake, BigQuery, Redshift).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Query and Processing</strong></span>: Spark platforms (Databricks, EMR), SQL query engines (Presto, Trino), DS/ML platforms, real-time analytics databases (Druid, ClickHouse), stream processing.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Transformation</strong></span>: Metrics layer (LookML, dbt), data modeling, workflow managers.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Analysis and Output</strong></span>: Dashboards (Looker, Tableau), embedded analytics, augmented analytics, data workspaces, DS/ML tooling, custom applications.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Cross-cutting Concerns</strong></span>: Data Discovery (Amundsen, DataHub), Data Governance (Collibra), Data Observability (Monte Carlo), Entitlements &amp; Security (Privacera, Immuta).</p></li>
+</ul>
+<hr />
+<h2>ETL vs. ELT Pipelines 🔄</h2>
+<p>Understanding the difference between <span style="color: #59a8fb;"><strong>ETL (Extract, Transform, Load)</strong></span> and <span style="color: #59a8fb;"><strong>ELT (Extract, Load, Transform)</strong></span> is crucial for designing modern data pipelines.</p>
+<h3>📦 ETL Pipeline Architecture (Inmon &amp; Kimball)</h3>
+<p><span style="color: #59a8fb;"><strong>ETL</strong></span> is the traditional approach where data transformation occurs <em>before</em> loading into the target system. This ensures data quality and consistency from the outset.</p>
+<img src="images/datawarehouses/dw-007.png" alt="ETL Pipeline" style="max-width: 500px; margin-left: 0" />
+<ol>
+<li><p><span style="color: #59a8fb;"><strong>Extract</strong></span>: Retrieving raw data from multiple sources (databases, APIs, flat files, streaming platforms) in its original format.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Transform</strong></span>: Standardizing and cleansing data to meet specific format requirements. This involves applying business rules, data quality checks, and formatting, significantly improving <span style="color: #59a8fb;"><strong>data discoverability</strong></span> and usability.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Load</strong></span>: Saving transformed data to its final destination, typically a <span style="color: #59a8fb;"><strong>data warehouse</strong></span>, ready for immediate analysis and reporting.</p></li>
+</ol>
+<h3>☁️ ELT Pipeline Architecture (Lakehouse)</h3>
+<p><span style="color: #59a8fb;"><strong>ELT</strong></span> reverses the traditional ETL sequence by loading raw data first and transforming it later. This modern approach leverages the processing power of cloud data warehouses and provides greater flexibility.</p>
+<img src="images/datawarehouses/dw-008.png" alt="ELT Pipeline" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Different Processing Order</strong></span>: Extract, Load, Transform. Data is ingested in its <span style="color: #59a8fb;"><strong>raw form</strong></span> and transformed only when needed for specific use cases.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Maximum Data Ingestion</strong></span>: ELT pipelines excel at capturing as much data as possible upfront, allowing transformation decisions to be made later based on <span style="color: #59a8fb;"><strong>emerging business requirements</strong></span> and analytical needs.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Schema Flexibility</strong></span>: The ELT architecture doesn&#39;t require upfront decisions about data types, structures, and formats. This <span style="color: #59a8fb;"><strong>schema-on-read</strong></span> approach provides maximum agility for data exploration and analysis.</p></li>
+</ul>
+<hr />
+<h2>🎯 Data Marts: Focused Analytics</h2>
+<p><span style="color: #59a8fb;"><strong>Data marts</strong></span> are smaller, focused data warehouses designed to serve the specific analytical needs of a particular business unit, department, or subject area.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Departmental Data Repositories</strong></span>: They provide faster query performance and simplified access for end-users by containing only the <span style="color: #59a8fb;"><strong>relevant subset</strong></span> of enterprise data.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-009.png" alt="Data Infrastructure with Data Marts" style="max-width: 500px; margin-left: 0" />
+<h3>⬆️ Bottom-Up Approach (Kimball)</h3>
+<p>Multiple specialized data marts can be combined to create a comprehensive <span style="color: #59a8fb;"><strong>enterprise data warehouse</strong></span>. This approach emphasizes building for specific business processes first.</p>
+<h3>⬇️ Top-Down Approach (Inmon)</h3>
+<p>A central data warehouse can be decomposed into focused data marts serving specific departments or functions. This approach prioritizes a single, integrated source of truth.</p>
+<hr />
+<h2>⚖️ Inmon vs. Kimball Approaches</h2>
+<p>Two prominent methodologies guide data warehouse design: <span style="color: #59a8fb;"><strong>Bill Inmon&#39;s top-down approach</strong></span> and <span style="color: #59a8fb;"><strong>Ralph Kimball&#39;s bottom-up approach</strong></span>.</p>
+<h3>⬆️ Inmon - Top-down approach</h3>
+<p>Inmon&#39;s approach emphasizes building a <span style="color: #59a8fb;"><strong>normalized Enterprise Data Warehouse (EDW)</strong></span> first, which then feeds specialized data marts.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Key Principles</strong></span>:</p><ul>
+<li><p>Builds a <span style="color: #59a8fb;"><strong>normalized EDW</strong></span> first.</p></li>
+<li><p>Data flows from source systems into the EDW, then to specialized data marts.</p></li>
+<li><p>Focuses on <span style="color: #59a8fb;"><strong>comprehensive data integration</strong></span> to create a single source of truth.</p></li>
+<li><p>Utilizes <span style="color: #59a8fb;"><strong>Third Normal Form (3NF)</strong></span> for the core warehouse structure, ensuring robust data consistency and reduced redundancy.</p></li>
+</ul></li>
+</ul>
+<img src="images/datawarehouses/dw-010.png" alt="Inmon Data Warehouse Architecture" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Limitations</strong></span>:</p><ul>
+<li><p><span style="color: #59a8fb;"><strong>Time-consuming and expensive</strong></span> to implement.</p></li>
+<li><p>Requires <span style="color: #59a8fb;"><strong>significant upfront planning</strong></span> and design.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Complex ETL processes</strong></span> due to normalization.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Slower query performance</strong></span> compared to dimensional models.</p></li>
+<li><p>Less agile and difficult to adapt to <span style="color: #59a8fb;"><strong>changing business requirements</strong></span>.</p></li>
+<li><p>Requires a deep understanding of the <span style="color: #59a8fb;"><strong>entire enterprise data landscape</strong></span>.</p></li>
+</ul></li>
+</ul>
+<h3>⬇️ Kimball - Bottom-up approach</h3>
+<p>Kimball&#39;s approach emphasizes building <span style="color: #59a8fb;"><strong>dimensional data marts</strong></span> first, typically using star schemas, and then integrating them through conformed dimensions.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Key Principles</strong></span>:</p><ul>
+<li><p>Emphasizes <span style="color: #59a8fb;"><strong>dimensional modeling</strong></span>, primarily using <span style="color: #59a8fb;"><strong>star schemas</strong></span> for data marts.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data marts are built first</strong></span>, focusing on specific business processes (bottom-up).</p></li>
+<li><p>Focuses on <span style="color: #59a8fb;"><strong>ease of use</strong></span> and rapid query performance for business users.</p></li>
+<li><p>Uses <span style="color: #59a8fb;"><strong>denormalized tables</strong></span> (facts and dimensions) to reduce joins and improve speed.</p></li>
+<li><p>Promotes a &quot;<span style="color: #59a8fb;"><strong>bus architecture</strong></span>&quot; for integrating data marts with conformed dimensions.</p></li>
+<li><p>Designed for <span style="color: #59a8fb;"><strong>agile development</strong></span> and quick delivery of analytical solutions.</p></li>
+</ul></li>
+</ul>
+<img src="images/datawarehouses/dw-011.png" alt="Kimball Data Warehouse Architecture" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Limitations</strong></span>:</p><ul>
+<li><p>Potential for <span style="color: #59a8fb;"><strong>data redundancy</strong></span> across different data marts.</p></li>
+<li><p>Can lead to <span style="color: #59a8fb;"><strong>inconsistencies</strong></span> if conformed dimensions are not strictly managed.</p></li>
+<li><p>Less suitable for complex, enterprise-wide data integration needs without careful planning.</p></li>
+<li><p>May not handle all analytical use cases as effectively as a highly normalized EDW.</p></li>
+<li><p>Challenges in maintaining and evolving a <span style="color: #59a8fb;"><strong>large number of disparate data marts</strong></span>.</p></li>
+<li><p>Initial setup might require significant effort in defining dimensions and facts.</p></li>
+</ul></li>
+</ul>
+<hr />
+<h2>🌊 Big Data Engineering &amp; Data Lakes</h2>
+<p><span style="color: #59a8fb;"><strong>Data lakes</strong></span> represent a paradigm shift in how organizations store and manage enterprise data, embracing the full diversity of modern data sources at massive scale.</p>
+<img src="images/datawarehouses/dw-012.png" alt="Big Data Infrastructure with Data Lake" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p>Unlike traditional warehouses with rigid schemas, data lakes embrace the full diversity of modern data sources, storing everything in its <span style="color: #59a8fb;"><strong>native format</strong></span> at massive scale.</p></li>
+<li><p>On top of the data lake, multiple layers can be created during various transformation steps.</p></li>
+</ul>
+<h3>🆚 Data Warehouse vs Data Lake</h3>
+<img src="images/datawarehouses/dw-013.png" alt="Data Warehouse vs Data Lake" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Data Warehouse</strong></span>: Data is processed and organized into a single schema <em>before</em> being put into the warehouse. Analysis is done on <span style="color: #59a8fb;"><strong>cleansed data</strong></span>.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Lake</strong></span>: Raw and unstructured data goes into a data lake. Data is selected and organized as and when needed (schema-on-read).</p></li>
+</ul>
+<h3>🏗️ Data Lake Architecture</h3>
+<p>Data flows from diverse sources through ingestion layers, into storage zones with varying levels of refinement, and ultimately serves multiple consumption patterns.</p>
+<h4>What Defines a Data Lake?</h4>
+<p>A data lake is a <span style="color: #59a8fb;"><strong>centralized repository</strong></span> that stores all enterprise data in its natural, raw format. This includes structured, semi-structured, unstructured, and binary data.</p>
+<ul>
+<li><p>It&#39;s like a natural lake with multiple tributaries, receiving continuous streams of various data types in real-time.</p></li>
+</ul>
+<h4>Breaking Down Data Silos</h4>
+<p>Data lakes emerged to solve <span style="color: #59a8fb;"><strong>enterprise data fragmentation</strong></span>. Organizations consolidate all data into a single, scalable repository, typically built on distributed systems like Hadoop or cloud object storage.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Raw Source Data</strong></span>: Unmodified copies of data from source systems, preserving original context.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Transformed Data</strong></span>: Processed data optimized for reporting, visualization, advanced analytics, and machine learning.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Analytical Assets</strong></span>: Curated datasets, models, and features ready for immediate business insights.</p></li>
+</ul>
+<h4>Data Types in a Data Lake</h4>
+<p>Data lakes embrace all data formats without discrimination, allowing organizations to capture value from all information assets.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Structured Data</strong></span>: Relational database tables with defined schemas.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Unstructured Data</strong></span>: Emails, documents, PDFs, text files lacking predefined models.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Semi-Structured Data</strong></span>: CSV, logs, XML, JSON with flexible schemas.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Binary Data</strong></span>: Images, audio, video content.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-014.png" alt="Data Lake Architecture" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Unlimited Scale</strong></span>: Data lakes can store every type of data in its native format with no fixed limits, increasing analytic performance and enabling native integration.</p></li>
+</ul>
+<h3>🌟 Benefits and Principles of Data Lakes</h3>
+<h4>Strategic Advantages</h4>
+<p>The primary objective of data lakes is to offer an <span style="color: #59a8fb;"><strong>unrefined, comprehensive view of data</strong></span> to data scientists and analysts, leading to a <span style="color: #59a8fb;"><strong>competitive edge</strong></span>.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>New Analytics Capabilities</strong></span>: Enable novel analytical approaches using previously unavailable data sources.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Schema Flexibility</strong></span>: No need for upfront data modeling into rigid enterprise-wide schemas.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Enhanced Quality</strong></span>: Access to raw data improves the depth and accuracy of analyses.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Business Agility</strong></span>: Rapid adaptation to changing business questions and analytical needs.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>AI and ML Ready</strong></span>: Native support for machine learning and artificial intelligence workloads.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Competitive Edge</strong></span>: Data-driven insights create sustainable competitive advantages.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Unified Architecture</strong></span>: Eliminates data silos and fragmented storage systems.</p></li>
+</ul>
+<h4>Core Principles</h4>
+<ol>
+<li><p><span style="color: #59a8fb;"><strong>Accept All Data</strong></span>: No data is refused entry; all data is loaded from various source systems and retained indefinitely.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Preserve Raw State</strong></span>: Data is stored in an untransformed or minimally transformed state, exactly as received.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Transform on Demand</strong></span>: Data is transformed and structured based on specific analysis requirements, not predetermined schemas.</p></li>
+</ol>
+<h3>🔑 Essential Concepts in Data Lake Management</h3>
+<p>Effective data lake management requires robust capabilities across several areas.</p>
+<img src="images/datawarehouses/dw-015.png" alt="Data Lake Management" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Data Ingestion</strong></span>: Connectors retrieve data from diverse sources and load it into the data lake.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Storage</strong></span>: Scalable, cost-effective storage with fast access.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Governance</strong></span>: Managing availability, usability, security, and integrity across all data assets.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Security</strong></span>: Multi-layered protection implemented at every layer.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Quality</strong></span>: Ensuring high-quality data to generate accurate business insights; poor quality leads to poor decisions.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Discovery</strong></span>: Tagging and cataloging techniques to express and share data understanding.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Auditing</strong></span>: Evaluating risk, compliance, and adherence to regulatory requirements.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Lineage</strong></span>: Tracking data origins, transformations, and movement throughout the ecosystem.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Exploration</strong></span>: Initial stage of data analysis enabling hypothesis formation.</p></li>
+</ul>
+<hr />
+<h2>📊 Data Warehouse vs Data Lake Comparison</h2>
+<p>Organizations typically require both a data warehouse and a data lake, as they serve fundamentally different needs and use cases.</p>
+<h3>Data Warehouse Characteristics</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Predefined Structure</strong></span>: Data structure and schema are defined in advance (schema-on-write).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Clean and Enriched</strong></span>: Data is cleaned, enriched, and transformed before storage.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Single Source of Truth</strong></span>: Serves as the authoritative, consistent view of enterprise data.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Structured Focus</strong></span>: Primarily handles relational data with well-defined schemas.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Business Users</strong></span>: Optimized for SQL-based reporting and business intelligence tools.</p></li>
+</ul>
+<h3>Data Lake Characteristics</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Flexible Structure</strong></span>: Data structure or schema is not defined at ingestion time (schema-on-read).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Raw Data Storage</strong></span>: Data is stored in its native format without upfront transformation.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Multiple Possibilities</strong></span>: Supports many possible analytics approaches on the same data.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Diverse Data Types</strong></span>: Accommodates relational and non-relational data (mobile apps, IoT, social media).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Scientists</strong></span>: Enables advanced analytics, machine learning, and exploratory data science.</p></li>
+</ul>
+<h3>Detailed Comparison Matrix</h3>
+<table>
+<tr><th><p>Characteristics</p></th><th><p>Data Warehouse</p></th><th><p>Data Lake</p></th></tr>
+<tr><td style="background: #FFF4E6;"><p>Data</p></td><td><p>Relational from transactional systems, operational databases, and line of business applications</p></td><td style="background: #FFF4E6;"><p>Non-relational and relational from IoT devices, web sites, mobile apps, social media and corporate applications</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Schema</p></td><td><p>Designed prior to the DW implementation (schema-on-write)</p></td><td style="background: #FFF4E6;"><p>Written at the time of analysis (schema-on-read)</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Price/Performance</p></td><td><p>Fastest query results using higher cost storage</p></td><td style="background: #FFF4E6;"><p>Query results getting faster using low-cost storage</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Data Quality</p></td><td><p>Highly curated data that serves as the central version of the truth</p></td><td style="background: #FFF4E6;"><p>Any data that may or may not be curated (ie. raw data)</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Users</p></td><td><p>Business analysts</p></td><td style="background: #FFF4E6;"><p>Data scientists, Data developers, and Business analysts (using curated data)</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Analytics</p></td><td><p>Batch reporting; BI and visualizations</p></td><td style="background: #FFF4E6;"><p>Machine Learning, Predictive analytics, data discovery profiling and</p></td></tr>
+</table>
+<table>
+<tr><th><p>Parameters</p></th><th><p>Data Lakes</p></th><th><p>Data Warehouse</p></th></tr>
+<tr><td style="background: #FFF4E6;"><p>Data</p></td><td><p>Data lakes store everything:</p></td><td style="background: #FFF4E6;"><p>Data Warehouse focuses only on Business Processes.</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Processing</p></td><td><p>Data are mainly unprocessed</p></td><td style="background: #FFF4E6;"><p>Highly processed data.</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Type of Data</p></td><td><p>It can be Unstructured, semi-structured and structured.</p></td><td style="background: #FFF4E6;"><p>It is mostly in tabular form &amp; structure.</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Task</p></td><td><p>Share data stewardship</p></td><td style="background: #FFF4E6;"><p>Optimized for data retrieval</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Agility</p></td><td><p>Highly agile; configure and reconfigure as needed.</p></td><td style="background: #FFF4E6;"><p>Compare to Data lake it is less agile and has fixed configuration.</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Users</p></td><td><p>Data Lake is mostly used by Data Scientist</p></td><td style="background: #FFF4E6;"><p>Business professionals use data Warehouse widely</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Storage</p></td><td><p>Data lakes design for low-cost storage.</p></td><td style="background: #FFF4E6;"><p>Expensive storage that give fast response times are used</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Security</p></td><td><p>Offers lesser control.</p></td><td style="background: #FFF4E6;"><p>Allows better control of the data.</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Replacement of EDW</p></td><td><p>Data lake can be source for EDW</p></td><td style="background: #FFF4E6;"><p>Complementary to EDW (not replacement)</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Schema</p></td><td><p>Schema on reading (no predefined schemas)</p></td><td style="background: #FFF4E6;"><p>Schema on write (predefined schemas)</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Data Processing</p></td><td><p>Helps for fast ingestion of new data.</p></td><td style="background: #FFF4E6;"><p>Time-consuming to introduce new content.</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Data Granularity</p></td><td><p>Data at a low level of detail or granularity.</p></td><td style="background: #FFF4E6;"><p>Data at the summary or aggregated level of detail.</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Tools</p></td><td><p>Can use open source/tools like Hadoop/ Map Reduce</p></td><td style="background: #FFF4E6;"><p>Mostly commercial tools.</p></td></tr>
+</table>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Architecture Decision</strong></span>: Modern data architectures often implement both systems in a <span style="color: #59a8fb;"><strong>complementary fashion</strong></span>, using data lakes for raw data storage and exploration, while maintaining data warehouses for curated, high-performance analytical workloads.</p></li>
+</ul>
+<hr />
+<h2>🚫 Data Lake vs Data Swamp: Avoiding Pitfalls</h2>
+<p>A <span style="color: #59a8fb;"><strong>data swamp</strong></span> is a data lake that has deteriorated into an unmanaged repository, where data becomes inaccessible or provides minimal value due to inadequate data governance.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>The Risk of Poor Governance</strong></span>: Without proper cataloging, quality controls, and metadata management, a data lake can become a dumping ground rather than a valuable asset.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Practical Accessibility Challenges</strong></span>: While data lakes theoretically offer access to all data, difficulty in parsing unstructured data creates barriers to insight generation.</p></li>
+</ul>
+<p>Organizations must invest in <span style="color: #59a8fb;"><strong>data cataloging, governance frameworks, and quality management</strong></span> to prevent data lakes from becoming swamps.</p>
+<img src="images/datawarehouses/dw-016.png" alt="Data Lake Metadata Management vs Data Swamp" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Metadata Management</strong></span>: Comprehensive cataloging and tagging of all data assets for discoverability.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Access Policies</strong></span>: Clear governance policies defining who can access what data.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Quality Controls</strong></span>: Automated validation and quality checks to ensure data reliability.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Lifecycle Management</strong></span>: Defined retention policies and archival strategies to prevent unlimited data accumulation.</p></li>
+</ul>
+<hr />
+<h2>💎 Lakehouse (Medallion) Architecture</h2>
+<p>The <span style="color: #59a8fb;"><strong>Lakehouse (Medallion) Architecture</strong></span> is a hybrid data architecture that combines the flexibility and cost-efficiency of data lakes with the robust data management and ACID transaction capabilities of data warehouses. It organizes data into distinct layers, progressively improving data quality.</p>
+<h3>Key Principles</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Layered Approach</strong></span>: Organizes data into three distinct layers: <span style="color: #59a8fb;"><strong>Bronze (raw), Silver (refined), and Gold (curated)</strong></span>, improving data quality at each stage.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Delta Lake Foundation</strong></span>: Often built on Delta Lake, providing <span style="color: #59a8fb;"><strong>ACID transactions, schema enforcement, data versioning, and time travel</strong></span>.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Bronze Layer (Raw)</strong></span>: Ingests source data as-is, ensuring <span style="color: #59a8fb;"><strong>historical immutability</strong></span> and full traceability.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Silver Layer (Refined)</strong></span>: Applies cleansing, filtering, and basic transformations, often joining data from multiple Bronze tables for a <span style="color: #59a8fb;"><strong>consistent view</strong></span>.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Gold Layer (Curated)</strong></span>: Delivers aggregated, denormalized, and highly optimized data for specific <span style="color: #59a8fb;"><strong>business intelligence, reporting, and machine learning applications</strong></span>.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Progressive Data Quality</strong></span>: Data quality and reliability increase as data moves through the layers.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Unified processing</strong></span> for streaming and batch data.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-017.png" alt="Lakehouse Architecture Layers" style="max-width: 500px; margin-left: 0" />
+<h3>Limitations</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Increased Complexity</strong></span>: Multiple layers can add complexity to data pipelines, especially for smaller projects.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Databricks/Delta Lake Specific</strong></span>: Full implementation often leverages specific features of the Databricks Lakehouse Platform, potentially leading to <span style="color: #59a8fb;"><strong>vendor lock-in</strong></span>.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Resource Intensive</strong></span>: Storing and processing data across three layers can consume more storage and compute resources if not optimized.</p></li>
+</ul>
+<h3>🗺️ Medallion Architecture: Zones Explained</h3>
+<p>The Medallion Architecture categorizes data into distinct zones, each with a specific purpose.</p>
+<img src="images/datawarehouses/dw-018.png" alt="Medallion Architecture Zones" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Bronze (Raw Data)</strong></span>: The initial staging/landing zone where raw, immutable data is ingested as-is, serving as the <span style="color: #59a8fb;"><strong>historical record</strong></span> of source data. It allows different ways of ingesting data from various sources.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Silver (Cleaned &amp; Refined)</strong></span>: The trusted zone where data is cleaned, validated, and transformed. It serves as a <span style="color: #59a8fb;"><strong>reliable single source of truth</strong></span> for further processing. It supports parallel/independent ingestion.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Gold (Curated &amp; Aggregated)</strong></span>: This zone delivers highly curated, aggregated, and optimized data for specific <span style="color: #59a8fb;"><strong>business intelligence, reporting, and machine learning applications</strong></span>. It features consolidated data and conformed dimensions.</p></li>
+</ul>
+<h4>Additional Specialized Zones</h4>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Sandbox Zone</strong></span>: A flexible, isolated environment for data scientists and analysts to experiment without impacting production.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Backup Zone</strong></span>: Dedicated to storing copies of data for disaster recovery, ensuring business continuity.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Archive Zone</strong></span>: For long-term (cold) storage of inactive historical data, crucial for compliance and reducing costs.</p></li>
+</ul>
+<h3>🔒 Medallion: PII Protection Perspective</h3>
+<p>From a privacy and security perspective, the medallion architecture implements progressive data protection and <span style="color: #59a8fb;"><strong>personally identifiable information (PII)</strong></span> handling.</p>
+<img src="images/datawarehouses/dw-019.png" alt="Medallion PII Protection" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Bronze: PII Encrypted</strong></span>: Raw data contains encrypted PII fields, maintaining compliance while preserving data utility for authorized users.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Silver: PII Masked</strong></span>: Sensitive fields are masked or tokenized, allowing broader access while protecting individual privacy.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Gold: PII Aggregated</strong></span>: Aggregated metrics eliminate individual-level data, enabling wide distribution without privacy concerns.</p></li>
+</ul>
+<p>This layered approach supports regulatory requirements like GDPR, CCPA, and HIPAA.</p>
+<h3>🏷️ Medallion Zones - Alternative Names</h3>
+<table>
+<tr><th><p></p></th><th><p>Landing</p></th><th><p>Raw</p></th><th><p>Harmonized</p></th><th><p>Distilled</p></th><th><p>Explorative</p></th><th><p>Delivery</p></th></tr>
+<tr><td style="background: #FFF4E6;"><p>Granularity (Raw Aggregated)</p></td><td><p>Raw</p></td><td style="background: #FFF4E6;"><p>Raw</p></td><td><p>Raw</p></td><td style="background: #FFF4E6;"><p>Aggregated</p></td><td><p>Any</p></td><td style="background: #FFF4E6;"><p>Any</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Schema (Any Consolidated)</p></td><td><p>Any</p></td><td style="background: #FFF4E6;"><p>Any</p></td><td><p>Consolidated</p></td><td style="background: #FFF4E6;"><p>Consolidated, enriched</p></td><td><p>Any</p></td><td style="background: #FFF4E6;"><p>Any</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Syntax (Unchanged Consolidated)</p></td><td><p>Basic transformations</p></td><td style="background: #FFF4E6;"><p>Basic transformations</p></td><td><p>Consolidated</p></td><td style="background: #FFF4E6;"><p>Consolidated</p></td><td><p>Any</p></td><td style="background: #FFF4E6;"><p>Any</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Semantics (Unchanged Processed)</p></td><td><p>Mostly unchanged, unless needed for compliance</p></td><td style="background: #FFF4E6;"><p>Mostly unchanged, unless needed for compliance</p></td><td><p>Mostly unchanged, unless needed for compliance</p></td><td style="background: #FFF4E6;"><p>Complex processing</p></td><td><p>Any</p></td><td style="background: #FFF4E6;"><p>Any</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Properties</p></td><td><p>Governed, non-historized, non-persistent; protected part; use case independent</p></td><td style="background: #FFF4E6;"><p>Governed, historized, persistent, protected part; use case independent</p></td><td><p>Governed, historized, persistent, protected part; use case independent</p></td><td style="background: #FFF4E6;"><p>Governed, historized, persistent; protected part; use case dependent</p></td><td><p>Not governed, non - persistent, protected part; use case dependent</p></td><td style="background: #FFF4E6;"><p>Governed, persistent, protected part; use case dependent</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>User Groups</p></td><td><p>Systems, processes</p></td><td style="background: #FFF4E6;"><p>Data scientists, systems, processes</p></td><td><p>Data scientists; systems, processes</p></td><td style="background: #FFF4E6;"><p>Data scientists; domain experts, systems, processes</p></td><td><p>Data scientists</p></td><td style="background: #FFF4E6;"><p>human users, systems, processes Any</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Modeling Approach</p></td><td><p>Any</p></td><td style="background: #FFF4E6;"><p>Any</p></td><td><p>Standardized</p></td><td style="background: #FFF4E6;"><p>Standardized</p></td><td><p>Any</p></td><td style="background: #FFF4E6;"><p>Any</p></td></tr>
+</table>
+<h3>☁️ Multi-cloud Medallion Architecture</h3>
+<p>A <span style="color: #59a8fb;"><strong>Multi-cloud Medallion Architecture</strong></span> is designed to process and refine data across various cloud providers (AWS, Azure, GCP).</p>
+<img src="images/datawarehouses/dw-020.png" alt="Multi-cloud Medallion Architecture" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Integration &amp; Synchronization</strong></span>: Uses cloud-agnostic tools or direct cloud-to-cloud connections to ensure <span style="color: #59a8fb;"><strong>seamless data flow</strong></span> and consistency.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Benefits</strong></span>:</p><ul>
+<li><p><span style="color: #59a8fb;"><strong>Avoiding Vendor Lock-in</strong></span>: Flexibility to choose the best services from different providers.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Leveraging Best-of-Breed Services</strong></span>: Utilize specialized services unique to each cloud.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Geographic Distribution</strong></span>: Enhance data locality, disaster recovery, and compliance.</p></li>
+<li><p>Minimizing data movement and complying with strict data residency regulations.</p></li>
+<li><p>Maintaining business continuity.</p></li>
+</ul></li>
+</ul>
+<h3>🏠 Hybrid On-Prem Approach</h3>
+<p>This approach extends the medallion architecture to <span style="color: #59a8fb;"><strong>on-premises environments</strong></span>, allowing organizations to maintain control over their data.</p>
+<img src="images/datawarehouses/dw-021.png" alt="Hybrid On-Prem Medallion Architecture" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p>Medallion zones (Bronze, Silver, Gold) can be implemented using a variety of <span style="color: #59a8fb;"><strong>on-premises storage and processing technologies</strong></span>.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Storage options</strong></span>: HDFS (Hadoop Distributed File System) and MinIO (S3-compatible object storage).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Table formats and processing</strong></span>: Hive, Kudu, and Apache Iceberg.</p></li>
+<li><p>This flexibility allows full utilization of existing on-prem infrastructure without compromising the medallion pattern&#39;s integrity.</p></li>
+<li><p>Crucial for addressing <span style="color: #59a8fb;"><strong>stringent data sovereignty and compliance requirements</strong></span>.</p></li>
+</ul>
+<h3>🧠 Medallion in RAG-based Systems</h3>
+<p>The Medallion Architecture can be adapted for <span style="color: #59a8fb;"><strong>Retrieval Augmented Generation (RAG)</strong></span> based systems, ensuring a structured approach to data processing for optimal Large Language Model (LLM) retrieval.</p>
+<img src="images/datawarehouses/dw-022.png" alt="Medallion Architecture for RAG Systems" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Bronze Layer</strong></span>: Ingests raw, multi-modal data (text, images, audio, video) directly from various sources, stored in its original, immutable format.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Silver Layer</strong></span>: Processes data from Bronze, involving cleaning, normalization, chunking of text, generation of embeddings, OCR for images, and transcription for audio. Goal is to refine data into a <span style="color: #59a8fb;"><strong>consistent and usable format</strong></span>.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Gold Layer</strong></span>: Houses an optimized <span style="color: #59a8fb;"><strong>vector database</strong></span> containing indexed embeddings. This refined data is ready for efficient retrieval by LLMs, forming a high-quality knowledge base for RAG workflows.</p></li>
+</ul>
+<p>This systematic approach ensures <span style="color: #59a8fb;"><strong>superior data quality, full traceability of data lineage, and significantly optimized retrieval performance</strong></span> for RAG applications.</p>
+<hr />
+<h2>⏳ Batch vs. Streaming Data Processing</h2>
+<p>Understanding the fundamental differences between <span style="color: #59a8fb;"><strong>batch</strong></span> and <span style="color: #59a8fb;"><strong>streaming data processing</strong></span> is crucial for designing efficient and responsive data architectures.</p>
+<h3>Batch Processing</h3>
+<ul>
+<li><p>Processes <span style="color: #59a8fb;"><strong>large volumes of data at scheduled intervals</strong></span>.</p></li>
+<li><p>Data is collected over time and processed in <span style="color: #59a8fb;"><strong>chunks</strong></span>.</p></li>
+<li><p>Suitable for operations where <span style="color: #59a8fb;"><strong>latency is not critical</strong></span> (e.g., daily reports, monthly payroll).</p></li>
+<li><p>Optimized for <span style="color: #59a8fb;"><strong>high throughput</strong></span> and complex transformations.</p></li>
+<li><p>Example: End-of-day financial reconciliations.</p></li>
+</ul>
+<h3>Streaming Processing</h3>
+<ul>
+<li><p>Processes data <span style="color: #59a8fb;"><strong>continuously as it arrives</strong></span>.</p></li>
+<li><p>Data is processed in <span style="color: #59a8fb;"><strong>small increments or events</strong></span>.</p></li>
+<li><p>Essential for scenarios demanding <span style="color: #59a8fb;"><strong>real-time insights</strong></span> and immediate actions (e.g., fraud detection, live dashboards).</p></li>
+<li><p>Optimized for <span style="color: #59a8fb;"><strong>low latency</strong></span> and rapid response.</p></li>
+<li><p>Example: Real-time sensor data analysis.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-023.png" alt="Batch vs. Streaming Processing" style="max-width: 500px; margin-left: 0" />
+<h3>Integrating Streaming and Batch Data: Challenges</h3>
+<p>Integrating both processing types introduces specific challenges:</p>
+<ol>
+<li><p><span style="color: #59a8fb;"><strong>Real-Time Ingestion</strong></span>: Facts and dimensions from customer-facing applications are consumed in near real-time, transformed, and stored in delta tables.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Batch Processing</strong></span>: Dimensions not yet streamed are ingested in batch ETLs from different parts of the system.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Join Challenge</strong></span>: Some streamed facts may reference dimension table keys that do not yet exist, requiring careful handling.</p></li>
+</ol>
+<img src="images/datawarehouses/dw-024.png" alt="Data Pipeline with Kafka and Delta Lake" style="max-width: 500px; margin-left: 0" />
+<hr />
+<h1>📐 Dimensional Modeling: Bus Matrix</h1>
+<p>The <span style="color: #59a8fb;"><strong>Bus Matrix</strong></span> is a foundational tool in enterprise data warehousing, guiding the development of analytical solutions by mapping business processes to shared dimensions. Ralph Kimball&#39;s approach emphasizes that dimensional modeling is built on business processes, with the Enterprise Data Warehouse being the sum of conformed and integrated models.</p>
+<h2>🚌 The Bus Matrix: Foundation of Enterprise Data Warehousing</h2>
+<p>The Bus Matrix is a <span style="color: #59a8fb;"><strong>high-level model</strong></span> of business processes executed daily, weekly, or monthly. It lists business processes in simple business language, explaining what each process is, its frequency, what can be measured, and who the key players are.</p>
+<ul>
+<li><p>It lists the <span style="color: #59a8fb;"><strong>fact tables</strong></span> and <span style="color: #59a8fb;"><strong>dimension tables</strong></span> needed.</p></li>
+<li><p>It can be created and understood by <span style="color: #59a8fb;"><strong>business stakeholders</strong></span>.</p></li>
+<li><p>It stores all information the data team needs.</p></li>
+</ul>
+<h2>❓ Define a Business Problem</h2>
+<p>Dimensional modeling begins with understanding the business problem. The Bus Matrix maps <span style="color: #59a8fb;"><strong>shared dimensions (columns)</strong></span> against <span style="color: #59a8fb;"><strong>business processes (rows)</strong></span>, enabling incremental data asset development.</p>
+<ul>
+<li><p>Design determines <span style="color: #59a8fb;"><strong>fact data grain</strong></span> and required dimensions for accessible, faster queries.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-025.png" alt="Bus Matrix Shared Dimensions" style="max-width: 500px; margin-left: 0" />
+<h2>🚶 The Four Steps of Dimensional Modeling</h2>
+<p>To model a business process dimensionally, follow these four steps:</p>
+<ol>
+<li><p><span style="color: #59a8fb;"><strong>Identify the Business Process</strong></span>: Define the specific business activity to be measured and analyzed.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Identify the Dimensions</strong></span>: Define the objects and context that describe the business process.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Identify the Grain</strong></span>: Determine the level of detail for each measurement in the process.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Identify the Facts</strong></span>: Specify the measurable metrics that quantify the business process.</p></li>
+</ol>
+<p>This process typically takes 1-2 days per business process, requiring a <span style="color: #59a8fb;"><strong>subject matter expert</strong></span> and a <span style="color: #59a8fb;"><strong>data architect</strong></span> with dimensional modeling knowledge.</p>
+<h2>🍋 Example: Happy Lemonade Stand</h2>
+<p>Consider a lemonade stand business with several processes:</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Selling Lemonade</strong></span>: Transactional process of selling glasses (<span>$1 for 33cl) or bottles ($</span>3 for 1 liter) to customers.</p><ul>
+<li><p><span style="color: #59a8fb;"><strong>Process Characteristics</strong></span>: Transactional, grain at individual sale, not all customers have loyalty cards.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Loyalty Program Benefits</strong></span>: 5 cups for 4 (vs. 5 regular), 2 bottles for 5.50 (vs. 6 regular), requires social media follow.</p></li>
+</ul></li>
+<li><p><span style="color: #59a8fb;"><strong>Purchase Ingredients</strong></span>: Procurement process for lemons and other ingredients.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Making Lemonade</strong></span>: Production process (50-liter gallon each weekend, 10:00 to 14:00).</p></li>
+</ul>
+<img src="images/datawarehouses/dw-026.png" alt="Lemonade Stand" style="max-width: 500px; margin-left: 0" />
+<h3>Building the Bus Matrix Model</h3>
+<p>For the &quot;Selling Lemonade&quot; process:</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Step 3: Identify Dimensions</strong></span>:</p><ol>
+<li><p><span style="color: #59a8fb;"><strong>Date &amp; Time</strong></span>: When the sale occurred during weekend operations (10:00-14:00).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Product</strong></span>: Glass (33 cl) or bottle (1 liter) with volume and pricing attributes.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Loyalty Program</strong></span>: Optional dimension (marked with O) for discount tracking.</p></li>
+</ol></li>
+<li><p><span style="color: #59a8fb;"><strong>Step 4: Identify Measures</strong></span>:</p><ol>
+<li><p><span style="color: #59a8fb;"><strong>Key Measures</strong></span>: Units sold, price, product volume, and discount given.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Dimensions Needed</strong></span>: Date, time, loyalty program, and product.</p></li>
+</ol></li>
+</ul>
+<p>The result is a model of a single process: a <span style="color: #59a8fb;"><strong>transactional fact table</strong></span> with 4 dimension columns and 4 measures. This model can be tested by asking questions and evaluating reporting needs <em>without writing any code</em>.</p>
+<img src="images/datawarehouses/dw-027.png" alt="Building the Bus Matrix Model" style="max-width: 500px; margin-left: 0" />
+<h2>📝 Bus Matrix Model - Example of Processes</h2>
+<table>
+<tr><th><p>Business Process</p></th><th><p>Grain</p></th><th><p>Measures</p></th><th><p>Loyalty Program</p></th><th><p>Product</p></th><th><p>Date</p></th><th><p>Time</p></th><th><p>Batch #</p></th><th><p>Ingredient</p></th><th><p>Waste Cause</p></th></tr>
+<tr><td style="background: #FFF4E6;"><p>Selling Lemonade</p></td><td><p>One row for each product sold to a customer of a given datetime transaction</p></td><td style="background: #FFF4E6;"><p>Sales Units, Sales Value, Sales Volume, Discount Value</p></td><td><p>O</p></td><td style="background: #FFF4E6;"><p>O</p></td><td><p>O</p></td><td style="background: #FFF4E6;"><p>O</p></td><td><p>X</p></td><td style="background: #FFF4E6;"><p>X</p></td><td><p>X</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Making Lemonade</p></td><td><p>One row for each batch of lemonade made, per product</p></td><td style="background: #FFF4E6;"><p>Volume, Units</p></td><td><p>X</p></td><td style="background: #FFF4E6;"><p>O</p></td><td><p>O</p></td><td style="background: #FFF4E6;"><p>O</p></td><td><p>O</p></td><td style="background: #FFF4E6;"><p>X</p></td><td><p>X</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Purchase Ingredients</p></td><td><p>One row for each item purchased for making lemonade</p></td><td style="background: #FFF4E6;"><p>Units, Cost</p></td><td><p>X</p></td><td style="background: #FFF4E6;"><p>X</p></td><td><p>O</p></td><td style="background: #FFF4E6;"><p>X</p></td><td><p>X</p></td><td style="background: #FFF4E6;"><p>O</p></td><td><p>X</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Waste</p></td><td><p>One row for each ingredient or product that is thrown to the garbage as waste</p></td><td style="background: #FFF4E6;"><p>Units</p></td><td><p>O</p></td><td style="background: #FFF4E6;"><p>O</p></td><td><p>O</p></td><td style="background: #FFF4E6;"><p>X</p></td><td><p>X</p></td><td style="background: #FFF4E6;"><p>O</p></td><td><p>O</p></td></tr>
+</table>
+<h2>📈 Complete Bus Matrix: Driving Value</h2>
+<p>By repeating the 4 steps for all processes, a comprehensive Bus Matrix is created, linking multiple fact tables through <span style="color: #59a8fb;"><strong>shared dimensions</strong></span>.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Complex Analysis</strong></span>: Perform analysis across all 4 processes as fact tables link via shared dimensions.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Process Optimization</strong></span>: Identify batches with most waste and manage purchase orders to meet expected demand.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Agile Development</strong></span>: Drive prioritization and apply agile methodologies by de-selecting parts without missing important elements.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-028.png" alt="Business Dashboard" style="max-width: 500px; margin-left: 0" />
+<p>The Bus Matrix allows for building an <span style="color: #59a8fb;"><strong>enterprise data warehouse incrementally</strong></span>, delivering business value process by process while maintaining integration and flexibility for future growth.</p>
+<hr />
+<h2>🌟 Data Modeling Approaches: Star Schema</h2>
+<p>Data modeling approaches form a hierarchical pyramid, reflecting how data is progressively refined and optimized for different purposes within a data platform.</p>
+<img src="images/datawarehouses/dw-029.png" alt="Data Architecture Pyramid" style="max-width: 500px; margin-left: 0" />
+<p>This pyramid illustrates the flow from highly structured operational data, through integration layers, to simplified analytical models for business consumption.</p>
+<h3>🏛️ Transactional Database (3NF)</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Purpose</strong></span>: Manages day-to-day operations of an organization (e.g., sales, inventory, orders).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Type</strong></span>: Stores current, real-time, and highly detailed data.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Structure</strong></span>: Optimized for CRUD (Create, Read, Update, Delete) operations.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Design</strong></span>: Highly <span style="color: #59a8fb;"><strong>normalized</strong></span> to minimize redundancy and ensure data integrity (typically <span style="color: #59a8fb;"><strong>Third Normal Form - 3NF</strong></span>).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Query Pattern</strong></span>: Primarily handles simple, quick queries for transaction processing.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Performance</strong></span>: Focused on fast data insertion and updates rather than complex analytical queries.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Examples</strong></span>: ERP systems, CRM systems, order processing systems.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-030.png" alt="Transactional Database ERD" style="max-width: 500px; margin-left: 0" />
+<h3>🌠 Dimensional Modeling: Star Schema</h3>
+<p>The <span style="color: #59a8fb;"><strong>star schema</strong></span> is a foundational design for data warehouses, optimizing data for analytical processing.</p>
+<img src="images/datawarehouses/dw-031.png" alt="Star Schema" style="max-width: 500px; margin-left: 0" />
+<h4>Star Schema Characteristics</h4>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Purpose</strong></span>: Organizes data into <span style="color: #59a8fb;"><strong>facts and dimensions</strong></span> for analytical processing (OLAP).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Structure</strong></span>: A central <span style="color: #59a8fb;"><strong>fact table</strong></span> connected to multiple <span style="color: #59a8fb;"><strong>dimension tables</strong></span>, resembling a star shape.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Fact Table</strong></span>: Stores quantitative data (<span style="color: #59a8fb;"><strong>measures</strong></span>), such as sales, revenue, or quantities.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Dimension Tables</strong></span>: Contain descriptive attributes (<span style="color: #59a8fb;"><strong>context</strong></span>), e.g., customer, time, product.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Normalization</strong></span>: Typically <span style="color: #59a8fb;"><strong>denormalized</strong></span> for performance in data retrieval and reporting, reducing the need for joins.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Query Performance</strong></span>: Optimized for fast read-heavy operations and aggregations.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Simple Design</strong></span>: Easy to understand and query, suitable for BI tools.</p></li>
+</ul>
+<h3>❄️ Dimensional Modeling: Snowflake Schema</h3>
+<p>The <span style="color: #59a8fb;"><strong>snowflake schema</strong></span> is a more normalized version of the star schema.</p>
+<img src="images/datawarehouses/dw-032.png" alt="Snowflake Schema" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Purpose</strong></span>: A more normalized version of the star schema, used for analytical processing.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Structure</strong></span>: Fact table at the center, surrounded by normalized dimension tables, which may have further sub-dimensions. This creates a branching structure.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Normalization</strong></span>: Higher normalization (typically 3NF) reduces redundancy but can complicate queries due to more joins.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Fact Table</strong></span>: Stores quantitative data (e.g., sales revenue, units sold).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Dimension Tables</strong></span>: More complex and divided into multiple related tables.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Query Performance</strong></span>: May be slower than star schema due to increased joins.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Storage Efficiency</strong></span>: More efficient for storage due to reduced redundancy.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Example Use Case</strong></span>: Complex analytics where data consistency and storage are critical.</p></li>
+</ul>
+<h3>📊 Fact Table</h3>
+<p>The <span style="color: #59a8fb;"><strong>fact table</strong></span> is the central component in a star or snowflake schema, storing measurable business metrics.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Purpose</strong></span>: Contains measurable business metrics related to events (sales, appointments, etc.).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Type</strong></span>: Stores <span style="color: #59a8fb;"><strong>numeric data</strong></span>, such as sales revenue, transaction count, or profit.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Granularity</strong></span>: Defined by the level of detail of the data (e.g., daily, hourly).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Key Columns</strong></span>: Contains <span style="color: #59a8fb;"><strong>foreign keys</strong></span> to dimension tables (e.g., <code>product_id</code>, <code>time_id</code>, <code>customer_id</code>).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Measures</strong></span>: Contains numeric facts or aggregatable measures (e.g., total sales).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Performance</strong></span>: Optimized for fast aggregation and analysis.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-033.png" alt="Star Schema Fact Table" style="max-width: 500px; margin-left: 0" />
+<p>The sales fact table contains foreign keys to dimensions plus numeric metrics (e.g., Revenue, UnitsSold) that measure business performance.</p>
+<h3>🌳 Dimension Table</h3>
+<p><span style="color: #59a8fb;"><strong>Dimension tables</strong></span> provide the descriptive context for the facts in a data warehouse.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Purpose</strong></span>: Describes the context of the facts in a data warehouse or analytical model.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Type</strong></span>: Stores <span style="color: #59a8fb;"><strong>descriptive, categorical data</strong></span> (e.g., customer names, product categories).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Structure</strong></span>: Contains attributes that provide the &quot;dimensions&quot; for analysis (e.g., time, location).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Keys</strong></span>: Each dimensional table is usually linked to a fact table via a <span style="color: #59a8fb;"><strong>foreign key</strong></span>.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Denormalization</strong></span>: Often denormalized for faster querying and simplicity.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Example Columns</strong></span>: Customer name, product type, region, time period.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Use Case</strong></span>: Allows users to <span style="color: #59a8fb;"><strong>slice and dice facts</strong></span> by different attributes (e.g., sales by region, product).</p></li>
+</ul>
+<img src="images/datawarehouses/dw-034.png" alt="Dimension Table Relationships" style="max-width: 500px; margin-left: 0" />
+<p>Product, Store, Customer, and Date dimensions provide contextual information, joining with facts to answer specific business questions like monthly product popularity or quarterly store performance.</p>
+<h2>🛠️ Steps of Designing a Star Schema Model</h2>
+<p>Designing an effective star schema model involves a systematic approach:</p>
+<ol>
+<li><p><span style="color: #59a8fb;"><strong>Identify the Business Process</strong></span>: Define the key business activities to be analyzed, including relevant metrics, KPIs, and initial dimensions.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Select Granularity</strong></span>: Determine the lowest level of detail for your data. Start at the finest grain, considering trade-offs between storage costs and query performance.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Determine Dimensions</strong></span>: Design dimension tables with unique, not-null primary keys. These tables provide descriptive context for the facts.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Consolidate the Facts</strong></span>: Store quantitative metrics and measures in fact tables, linking them to dimension tables using foreign keys.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Build a Schema</strong></span>: Choose the appropriate schema type (star, snowflake, or fact constellation) and implement it, ideally via infrastructure as code with automated tests.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Optimize for Query Performance</strong></span>: Index the fact table on key columns (foreign keys) for efficient querying. Create derived fact tables for high-level aggregations.</p></li>
+</ol>
+<h3>✅ Benefits of Star Schema Models</h3>
+<img src="images/datawarehouses/dw-035.png" alt="Benefits of Star Schema Models" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Simplicity</strong></span>: Easy to understand and navigate due to its clear, intuitive structure. Queries are straightforward with minimal joins.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Query Performance</strong></span>: Optimized for read-heavy analytical queries, especially when aggregating data. Denormalized structure leads to faster query performance and reduced need for joins.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Separation of Facts and Dimensions</strong></span>: Easy to maintain and update facts and dimensions independently. Dimensions remain stable over time, while facts may change or grow.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Scalability</strong></span>: Easily extendable as new dimensions or facts can be added without significant redesign. Great for large datasets with many dimensions and measures.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Business User Accessibility</strong></span>: Simple, understandable structure is more accessible to business analysts and non-technical users. Direct support for Business Intelligence (BI) tools and dashboards.</p></li>
+</ul>
+<h3>❌ Drawbacks of Star Schema Models</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Limited Agility for Changes</strong></span>:</p><ul>
+<li><p>Adding new sources or making structural changes can be challenging.</p></li>
+<li><p>Changes in business requirements often require redesign or schema restructuring.</p></li>
+<li><p>Changes of fact table granularity require reloading.</p></li>
+<li><p>Historic refill (backfill) can be challenging.</p></li>
+</ul></li>
+<li><p><span style="color: #59a8fb;"><strong>Maintenance Complexity</strong></span>:</p><ul>
+<li><p>Managing large fact tables with a high number of records can become difficult.</p></li>
+<li><p>Ensuring consistency across fact tables with different granularities can be complex.</p></li>
+</ul></li>
+<li><p><span style="color: #59a8fb;"><strong>Potential for Data Integrity Issues</strong></span>: If dimension tables are not properly maintained, data integrity issues may arise, especially with attributes that change frequently.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Data Redundancy</strong></span>: Due to denormalization, dimension tables may contain redundant data, leading to higher storage costs. Updates to dimension attributes require updating multiple rows.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Not Ideal for Real-Time Processing</strong></span>: Optimized for historical data analysis and may not support real-time transaction processing or low-latency updates.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Lack of Flexibility for Complex Relationships</strong></span>: More complex many-to-many relationships may be harder to model.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Maintenance Nightmare</strong></span>: The effort and cost of maintaining information marts can increase significantly over time.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-036.png" alt="ETL Complexity Factors" style="max-width: 500px; margin-left: 0" />
+<hr />
+<h1>🌳 Dimensional Modeling: Dimension Tables</h1>
+<p>Dimension tables are crucial in dimensional modeling, providing descriptive context for the facts in a data warehouse. They represent entities relevant to business and analytics requirements, such as products, people, places, dates, and times.</p>
+<h2>📝 Understanding Dimension Tables</h2>
+<p>In a dimensional model, a <span style="color: #59a8fb;"><strong>dimension table</strong></span> describes an entity relevant to your business and analytics requirements. These tables typically represent:</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>What</strong></span>: Items sold or manufactured.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Where</strong></span>: Locations, regions, stores.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Who</strong></span>: Customers, employees, salespeople.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>When</strong></span>: Dates and timestamps of events.</p></li>
+</ul>
+<p>Dimension tables are often prefixed with <code>d_</code> or <code>Dim_</code> for easy identification.</p>
+<img src="images/datawarehouses/dw-037.png" alt="Star Schema with Dimension Tables" style="max-width: 500px; margin-left: 0" />
+<p>Example <code>d_Salesperson</code> table structure:</p>
+<pre><code class="language-sql">CREATE TABLE d_Salesperson (
+    Salesperson_SK INT NOT NULL, -- Surrogate key
+    EmployeeID VARCHAR(20) NOT NULL, -- Natural key(s)
+    FirstName VARCHAR(20) NOT NULL,
+    -- ... other dimension attributes
+    SalesRegion_FK INT NOT NULL, -- Foreign key(s) to other dimensions
+    -- Historical tracking attributes (SCD type 2)
+    RecChangeDate_FK INT NOT NULL,
+    RecValidFromKey INT NOT NULL,
+    RecValidToKey INT NOT NULL,
+    RecReason VARCHAR(15) NOT NULL,
+    RecIsCurrent BIT NOT NULL,
+    -- Audit attributes
+    AuditMissing BIT NOT NULL,
+    AuditIsInferred BIT NOT NULL,
+    AuditCreatedDate DATE NOT NULL,
+    AuditCreatedBy VARCHAR(15) NOT NULL,
+    AuditLastModifiedDate DATE NOT NULL,
+    AuditLastModifiedBy VARCHAR(15) NOT NULL
+);</code></pre>
+<h2>🔑 Surrogate Keys: The Foundation</h2>
+<p>A <span style="color: #59a8fb;"><strong>surrogate key</strong></span> is a single-column unique identifier, generated and stored in the dimension table. It serves as the primary key for relating to other tables in the dimensional model.</p>
+<h3>Key Benefits</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Consolidate multiple data sources</strong></span> without identifier clashes.</p></li>
+<li><p>Convert multi-column natural keys into efficient <span style="color: #59a8fb;"><strong>single-column keys</strong></span>.</p></li>
+<li><p>Track dimension history with <span style="color: #59a8fb;"><strong>SCD type 2</strong></span>.</p></li>
+<li><p>Optimize fact table storage with the smallest possible integer data type.</p></li>
+</ul>
+<h3>Best Practice</h3>
+<p>A surrogate key column is recommended even when a natural key seems acceptable. Avoid giving meaning to key values, except for date and time dimension keys.</p>
+<h3>Dimension Surrogate Keys Generation Approaches</h3>
+<table>
+<tr><th><p>Approach</p></th><th><p>Pros</p></th><th><p>Cons</p></th></tr>
+<tr><td style="background: #FFF4E6;"><p><span style="color: #59a8fb;"><strong>Hash of the business (natural) key</strong></span> (e.g., SHA256 or MD5)</p></td><td><p>Can be processed in a distributed environment; Reloads generate the same values; Doesn&#39;t require joins to dimensions to identify the surrogate key when loading fact tables</p></td><td style="background: #FFF4E6;"><p>Requires that the business key is stable; Not as user-friendly as INT keys</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p><span style="color: #59a8fb;"><strong>Generate GUID</strong></span> (Globally Unique Identifier)</p></td><td><p>Can be processed in a distributed environment</p></td><td style="background: #FFF4E6;"><p>Requires joins to dimensions to load fact tables; Not as user-friendly as INT keys; Reloads generate new values, so if a dimension table is reloaded, all fact tables that reference it should be reloaded as well</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p><span style="color: #59a8fb;"><strong>Generate an autoincremented value</strong></span> (identity column)</p></td><td><p>User (engineer)-friendly values; Facilitates more efficient ordering by INTs that corresponds to the loading sequence</p></td><td style="background: #FFF4E6;"><p>Requires joins to dimensions to load fact tables; Reloads generate new values, so if a dimension table is reloaded, all fact tables that reference it should be reloaded as well; Inefficient to generate in distributed environments</p></td></tr>
+</table>
+<p><span style="color: #59a8fb;"><strong>Caution</strong></span>: Never perform a truncate and full reload of a dimension table with automatically generated surrogate keys if it&#39;s referenced by fact tables or supports SCD type 2 changes.</p>
+<h2>🗑️ Dimension Member Deletions</h2>
+<ul>
+<li><p>Avoid synchronizing deletions with the dimension table, unless members were created in error and have no related fact records.</p></li>
+</ul>
+<h3>Soft Delete Approach</h3>
+<p>Mark dimension members as no longer active or valid using a Boolean attribute (e.g., <code>IsDeleted</code> or <code>IsActive</code>). Update this column to <code>TRUE</code> (1) for deleted members.</p>
+<h3>Current Version Tracking</h3>
+<p>The current, latest version of a dimension member can be marked with a Boolean (<code>bit</code>) value in <code>IsCurrent</code> or <code>IsActive</code> columns.</p>
+<h3>Reporting Filters</h3>
+<p>All reporting queries and Power BI semantic models should filter out soft-deleted records to maintain <span style="color: #59a8fb;"><strong>data integrity</strong></span>.</p>
+<h2>🕵️ Audit Attributes</h2>
+<p><span style="color: #59a8fb;"><strong>Audit attributes</strong></span> are optional but highly recommended. They track when and how dimension records were created or modified, and can include diagnostic information from ETL processes.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Temporal Tracking</strong></span>: Track who (or what process) updated a row and when.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Diagnostics</strong></span>: Help diagnose challenging problems, like when an ETL process stops unexpectedly.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Quality Flags</strong></span>: Flag dimension members as errors or inferred members for data quality monitoring.</p></li>
+</ul>
+<h2>📏 Dimension Table Size Considerations</h2>
+<p>The most useful and versatile dimensions are often <span style="color: #59a8fb;"><strong>big, wide dimensions</strong></span> (millions+ rows, hundreds of attributes). Size isn&#39;t the primary concern; what matters is that the dimension supports required filtering, grouping, and accurate historical analysis.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Big Dimensions</strong></span>: Sourced from multiple systems, requiring combining, merging, deduplicating, and standardizing data while assigning surrogate keys.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Small Dimensions</strong></span>: Tiny lookup tables with few records and attributes, often storing category values.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Consolidation Tip</strong></span>: When many small dimensions exist, consider consolidating them into a <span style="color: #59a8fb;"><strong>junk dimension</strong></span> to reduce clutter and improve efficiency.</p></li>
+</ul>
+<h2>⚖️ Denormalization vs. Normalization</h2>
+<img src="images/datawarehouses/dw-038.png" alt="Denormalization vs. Normalization in Data Warehousing" style="max-width: 500px; margin-left: 0" />
+<h3>Snowflake Dimensions</h3>
+<p>A <span style="color: #59a8fb;"><strong>snowflake dimension</strong></span> is a normalized dimension, storing data across several related tables.</p>
+<h4>When to Use Snowflake Dimensions</h4>
+<ul>
+<li><p>The dimension is extremely large, and <span style="color: #59a8fb;"><strong>storage costs outweigh query performance needs</strong></span>.</p></li>
+<li><p>You need keys to relate the dimension to higher-grain facts.</p></li>
+<li><p>You need to track historical changes at higher levels of granularity.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Important</strong></span>: A hierarchy in a semantic model can only be based on columns from a single table. A snowflake dimension should deliver a <span style="color: #59a8fb;"><strong>denormalized result using a view</strong></span> that joins the snowflake tables together.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-039.png" alt="Snowflake Dimension Example" style="max-width: 500px; margin-left: 0" />
+<p>The diagram shows a snowflake dimension comprising three related dimension tables: Product, Subcategory, and Category, each with specific attributes at its level of granularity.</p>
+<h2>🌲 Understanding Hierarchies</h2>
+<p>Dimension columns commonly produce <span style="color: #59a8fb;"><strong>hierarchies</strong></span> that enable exploring data at distinct levels of summarization (e.g., drilling down from yearly to quarterly sales).</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Single Denormalized Dimension</strong></span>: Columns from one table storing all hierarchy levels.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Snowflake Dimension</strong></span>: Multiple related tables forming hierarchy levels.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Parent-Child Relationship</strong></span>: Self-referencing dimension for unbalanced hierarchies.</p></li>
+</ul>
+<p>Hierarchies can be <span style="color: #59a8fb;"><strong>balanced</strong></span>, <span style="color: #59a8fb;"><strong>unbalanced</strong></span>, or <span style="color: #59a8fb;"><strong>ragged</strong></span>.</p>
+<h3>Balanced Hierarchies</h3>
+<p><span style="color: #59a8fb;"><strong>Balanced hierarchies</strong></span> are the most common, having the same number of levels across all branches.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Common Examples</strong></span>:</p><ul>
+<li><p>Calendar hierarchy: Year <span>$\rightarrow$</span> Quarter <span>$\rightarrow$</span> Month <span>$\rightarrow$</span> Date</p></li>
+<li><p>Geography hierarchy: Country <span>$\rightarrow$</span> State <span>$\rightarrow$</span> City</p></li>
+<li><p>Product hierarchy: Category <span>$\rightarrow$</span> Subcategory <span>$\rightarrow$</span> Product</p></li>
+</ul></li>
+<li><p>Levels are based on columns from a single, denormalized dimension, or from tables that form a snowflake dimension.</p></li>
+<li><p>Facts always relate to a single level, typically the lowest, allowing facts to be aggregated (rolled up) to the highest level.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-040.png" alt="Balanced Hierarchy Example" style="max-width: 500px; margin-left: 0" />
+<h3>Unbalanced Hierarchies</h3>
+<p><span style="color: #59a8fb;"><strong>Unbalanced hierarchies</strong></span> are less common and have levels based on a parent-child relationship. The number of levels is determined by the dimension rows, not specific columns, meaning different branches can have different depths.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Common Examples</strong></span>: Employee hierarchies (reporting structures), bill of materials, company ownership models, general ledger accounts.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Recommendation</strong></span>: Naturalize the hierarchy by transforming and storing hierarchy levels as columns in the dimension.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-041.png" alt="Unbalanced Hierarchy Example" style="max-width: 500px; margin-left: 0" />
+<h3>Ragged Hierarchies</h3>
+<p>A hierarchy is <span style="color: #59a8fb;"><strong>ragged</strong></span> when the parent of a member exists at a level that&#39;s not immediately above it. Missing level values repeat the value of the parent.</p>
+<ul>
+<li><p>Example: In a geography hierarchy, New Zealand may have no states. The country value (&quot;New Zealand&quot;) would be repeated in the <code>StateProvince</code> column.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-042.png" alt="Ragged Hierarchy Example" style="max-width: 500px; margin-left: 0" />
+<h2>⏳ Managing Historical Change</h2>
+<p><span style="color: #59a8fb;"><strong>Slowly Changing Dimensions (SCDs)</strong></span> are mechanisms to manage how changes to dimension data are handled over time, preserving historical context.</p>
+<img src="images/datawarehouses/dw-043.png" alt="SCD Types" style="max-width: 500px; margin-left: 0" />
+<h3>SCD Type 1: Overwrite</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Action</strong></span>: Overwrites the existing dimension row, as there&#39;s no need to keep track of changes. Also used to correct errors.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Impact</strong></span>: <span style="color: #59a8fb;"><strong>No history preserved</strong></span>. The existing row is updated, which can result in different higher-level aggregations for historical data.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Example</strong></span>: If a salesperson is assigned to a new region, historic sales will roll up to the new region as if they were always assigned there.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-044.png" alt="SCD Type 1 Example" style="max-width: 500px; margin-left: 0" />
+<h3>SCD Type 2: Versioning</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Action</strong></span>: Inserts a new row representing a time-based version of a dimension member. There&#39;s always a current version.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Key Requirements</strong></span>: Requires a <span style="color: #59a8fb;"><strong>surrogate key</strong></span> because there will be duplicate natural keys. Historical tracking attributes (e.g., <code>RecValidFromKey</code>, <code>RecValidToKey</code>, <code>RecIsCurrent</code>) store validity periods.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Impact</strong></span>: <span style="color: #59a8fb;"><strong>Full history preserved</strong></span>. The granularity of related fact tables is at the member version level, allowing historic results to roll up correctly, but analysts must navigate multiple member versions.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-045.png" alt="SCD Type 2 Example" style="max-width: 500px; margin-left: 0" />
+<h4>SCD Type 2 Implementation Details</h4>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Update Current Version</strong></span>: Set the end validity date to the ETL processing date and the current flag to <code>FALSE</code>.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Insert New Version</strong></span>: Set the start validity date to the previous end date and the current flag to <code>TRUE</code>.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Balance</strong></span>: Avoid too many SCD type 2 changes on a dimension, as it can complicate analysis. Consider adding frequently changing attributes to the fact table instead.</p></li>
+</ul>
+<h3>SCD Type 3: Limited History</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Action</strong></span>: Tracks limited history by storing previous and current values in separate columns.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Use Case</strong></span>: Useful when you only need to preserve the <span style="color: #59a8fb;"><strong>most recent change</strong></span>.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Mechanism</strong></span>: Overwrites the dimension row while keeping the previous value in a dedicated column (e.g., <code>PreviousSalesRegion</code>).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Limitations</strong></span>: Not practical in real-life due to frequent schema changes required for tracking new columns. Not commonly used in semantic models.</p></li>
+</ul>
+<h2>📅 Date Dimension</h2>
+<p>The <span style="color: #59a8fb;"><strong>date (or calendar) dimension</strong></span> is the most common dimension, storing one row per date and supporting filtering/grouping by periods.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Natural Key</strong></span>: Should use the <code>DATE</code> data type.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Surrogate Key</strong></span>: Should store the date in <span style="color: #59a8fb;"><strong>YYYYMMDD format</strong></span> using the <code>INT</code> data type, making it human-readable, efficient, and ISO 8601 compliant.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Attributes</strong></span>: Includes columns for Year, Quarter, Month, Day, WeekOfYear, IsHoliday, HolidayText, IsWeekday, LastDayOfMonth, and relative offsets (e.g., <code>RelativeMonthOffset</code>).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Population</strong></span>: Generated beforehand (e.g., 100 years * 365 = 36,500 rows) and rarely modified. Should include future dates for targets or forecasts.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-046.png" alt="Date Dimension Loading" style="max-width: 500px; margin-left: 0" />
+<h2>⏰ Time Dimension</h2>
+<p>When facts require analysis at a specific point in time, a dedicated <span style="color: #59a8fb;"><strong>time (or clock) dimension</strong></span> is essential.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Granularity</strong></span>: Can range from minutes (1,440 rows) to seconds (86,400 rows).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Natural Key</strong></span>: Should use the <code>TIME</code> data type.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Surrogate Key</strong></span>: Consider a human-readable <code>INT</code> format like <code>HHMM</code> or <code>HHMMSS</code>.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Attributes</strong></span>: Includes Hour, HalfHour, QuarterHour, Minute, time period labels (morning, afternoon), work shift names, and peak/off-peak flags.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Important</strong></span>: A date dimension should <span style="color: #59a8fb;"><strong>not</strong></span> include a grain that extends to time of day. Use both a date dimension and a separate time dimension.</p></li>
+</ul>
+<h2>🤝 Conformed Dimensions</h2>
+<p><span style="color: #59a8fb;"><strong>Conformed dimensions</strong></span> are shared across multiple fact tables, delivering consistency and reducing development effort.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Common Examples</strong></span>: Date dimensions (used by nearly all fact tables) and product dimensions.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Benefit</strong></span>: Ensures consistent data analysis across different business areas.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Entity Overlap</strong></span>: When entities overlap (e.g., employees who are also system users), combine their attributes into a single conformed dimension.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-047.png" alt="Conformed Dimensions Example" style="max-width: 500px; margin-left: 0" />
+<h2>🌌 Fact Constellation and Galaxy Schemas</h2>
+<h3>Fact Constellation Schema</h3>
+<p>A <span style="color: #59a8fb;"><strong>constellation schema</strong></span> consists of a set of star schemas with <span style="color: #59a8fb;"><strong>hierarchically linked fact tables</strong></span>.</p>
+<ul>
+<li><p>The links between various fact tables provide the ability to &quot;drill down&quot; between levels of detail (e.g., from Sale to Sale Item).</p></li>
+</ul>
+<img src="images/datawarehouses/dw-048.png" alt="Fact Constellation Schema Example" style="max-width: 500px; margin-left: 0" />
+<h3>Fact Galaxy Schema</h3>
+<p>More generally, a set of star schemas or constellations can be combined to form a <span style="color: #59a8fb;"><strong>galaxy</strong></span>.</p>
+<ul>
+<li><p>A galaxy is a collection of star schemas with shared dimensions.</p></li>
+<li><p>Unlike a constellation schema, the fact tables in a galaxy do <span style="color: #59a8fb;"><strong>not</strong></span> need to be directly related.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-049.png" alt="Fact Galaxy Schema Example" style="max-width: 500px; margin-left: 0" />
+<h2>🎭 Role-Playing Dimensions</h2>
+<p>A <span style="color: #59a8fb;"><strong>role-playing dimension</strong></span> occurs when a dimension is referenced multiple times in a fact table, with each reference representing a distinct role.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Example</strong></span>: A sales fact table may have <code>OrderDate_Date_FK</code>, <code>ShipDate_Date_FK</code>, and <code>DeliveryDate_Date_FK</code> keys, all referencing the same physical date dimension.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Another Example</strong></span>: An Airport dimension related twice to a Flight fact table as <code>Departure Airport</code> and <code>Arrival Airport</code>.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-050.png" alt="Role-Playing Dimensions Example" style="max-width: 500px; margin-left: 0" />
+<h2>🗑️ Junk Dimensions</h2>
+<p>A <span style="color: #59a8fb;"><strong>junk dimension</strong></span> consolidates many small dimensions into a single dimension. It is useful when there are many independent dimensions with few attributes and low cardinality.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Benefits</strong></span>:</p><ul>
+<li><p>Reduce the number of dimensions.</p></li>
+<li><p>Decrease fact table keys and storage size.</p></li>
+<li><p>Reduce Data pane clutter.</p></li>
+</ul></li>
+<li><p><span style="color: #59a8fb;"><strong>Good Candidates</strong></span>: Flags and indicators, order status, customer demographic states (gender, age group).</p></li>
+<li><p>A junk dimension table typically stores the <span style="color: #59a8fb;"><strong>Cartesian product</strong></span> of all dimension attribute values with a surrogate key.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-051.png" alt="Junk Dimension Example" style="max-width: 500px; margin-left: 0" />
+<h2>👻 Degenerate Dimensions</h2>
+<p>A <span style="color: #59a8fb;"><strong>degenerate dimension</strong></span> occurs when the dimension is at the same grain as the related facts. A common example is a sales order number dimension that relates to a sales fact table.</p>
+<ul>
+<li><p>Typically, the invoice number is a single, non-hierarchical attribute in the fact table. It&#39;s accepted practice not to copy this data to create a separate dimension table.</p></li>
+<li><p>You can create a <span style="color: #59a8fb;"><strong>view</strong></span> in a Fabric Warehouse that presents the degenerate dimension as a dimension for querying purposes.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-052.png" alt="Degenerate Dimension Example" style="max-width: 500px; margin-left: 0" />
+<h2>⛵ Outrigger Dimensions</h2>
+<p>When a dimension table relates to other dimension tables, it&#39;s known as an <span style="color: #59a8fb;"><strong>outrigger dimension</strong></span>. An outrigger dimension helps to conform and reuse definitions in the dimensional model.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Example</strong></span>: A geography dimension storing geographic locations for every postal code, referenced by both customer and salesperson dimensions. This ensures consistent geographic locations for analysis.</p></li>
+<li><p>The date dimension can be used as an outrigger dimension when other dimension table attributes store dates (e.g., birth date in a customer dimension using the date dimension&#39;s surrogate key).</p></li>
+</ul>
+<img src="images/datawarehouses/dw-053.png" alt="Outrigger Dimension Example" style="max-width: 500px; margin-left: 0" />
+<h2>↔️ Multivalued Dimensions</h2>
+<p>When a dimension attribute must store multiple values, you implement a <span style="color: #59a8fb;"><strong>multivalued dimension</strong></span> using a <span style="color: #59a8fb;"><strong>bridge table (or join table)</strong></span> to store the many-to-many relationship between entities.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Example</strong></span>: If salespeople can be assigned to multiple sales regions, a bridge table stores each salesperson-region relationship, creating a logical many-to-many relationship.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Practical Approach</strong></span>: Have direct Foreign Keys (FKs) from the fact table to all combinations stemming from the many-to-many relationship (e.g., FKs to both Customer and Account).</p></li>
+</ul>
+<img src="images/datawarehouses/dw-054.png" alt="Multivalued Dimension Example" style="max-width: 500px; margin-left: 0" />
+<h2>🎯 Dimensions: Key Takeaways</h2>
+<h3>Design Principles</h3>
+<ul>
+<li><p>Use <span style="color: #59a8fb;"><strong>surrogate keys</strong></span> for all dimensions.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Denormalize</strong></span> for performance and usability.</p></li>
+<li><p>Include <span style="color: #59a8fb;"><strong>audit attributes</strong></span> for tracking.</p></li>
+<li><p>Balance historical tracking needs with complexity.</p></li>
+</ul>
+<h3>Common Patterns</h3>
+<ul>
+<li><p>Implement <span style="color: #59a8fb;"><strong>date and time dimensions</strong></span> for temporal analysis.</p></li>
+<li><p>Use <span style="color: #59a8fb;"><strong>conformed dimensions</strong></span> for consistency.</p></li>
+<li><p>Apply <span style="color: #59a8fb;"><strong>SCD types</strong></span> based on business requirements.</p></li>
+<li><p>Leverage <span style="color: #59a8fb;"><strong>role-playing dimensions</strong></span> when appropriate.</p></li>
+</ul>
+<h3>Special Considerations</h3>
+<ul>
+<li><p>Consolidate small dimensions into <span style="color: #59a8fb;"><strong>junk dimensions</strong></span>.</p></li>
+<li><p>Naturalize <span style="color: #59a8fb;"><strong>unbalanced hierarchies</strong></span> when possible.</p></li>
+<li><p>Use <span style="color: #59a8fb;"><strong>bridge tables</strong></span> for many-to-many relationships.</p></li>
+<li><p>Create <span style="color: #59a8fb;"><strong>views</strong></span> for degenerate dimensions.</p></li>
+</ul>
+<hr />
+<h1>🏷️ Dimensional Modeling: Entity Classification</h1>
+<p>Entity classification is the first step in converting an Entity Relationship (ER) model into a dimensional model for analytics and reporting. The goal is to understand the role each entity plays in analysis and prepare for building fact and dimension tables in a star schema.</p>
+<h2>📈 Step 1: Classify Entities Overview</h2>
+<ul>
+<li><p>This initial stage helps transform complex operational models into simplified analytical models.</p></li>
+<li><p>Entities are classified into three distinct categories based on how they represent business activity and context: <span style="color: #59a8fb;"><strong>Transaction, Component, and Classification Entities</strong></span>.</p></li>
+</ul>
+<h3>Why Classification Matters</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Identify Business Events</strong></span>: Helps pinpoint which business events decision-makers want to analyze and track.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Structure Star Schemas</strong></span>: Provides a clear structure for organizing fact tables and dimension tables.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Simplify Models</strong></span>: Simplifies complex operational models for analytical use while preserving essential business meaning.</p></li>
+</ul>
+<h2>💰 Transaction Entities</h2>
+<p><span style="color: #59a8fb;"><strong>Transaction entities</strong></span> record details about specific business events that occur at a point in time. These events are typically the primary focus of analysis and represent measurable activities.</p>
+<h3>Key Characteristics</h3>
+<ul>
+<li><p>Describe an event that happens at a <span style="color: #59a8fb;"><strong>specific moment in time</strong></span>.</p></li>
+<li><p>Contain <span style="color: #59a8fb;"><strong>measurements or quantities</strong></span> (e.g., dollar amounts, weights, volumes, counts).</p></li>
+<li><p>Most <span style="color: #59a8fb;"><strong>many-to-many relationships</strong></span> represent transaction entities.</p></li>
+</ul>
+<h3>Role in Dimensional Modeling</h3>
+<ul>
+<li><p>Transaction entities are the <span style="color: #59a8fb;"><strong>most important</strong></span> in a data warehouse.</p></li>
+<li><p>They form the basis for constructing <span style="color: #59a8fb;"><strong>fact tables</strong></span> in star schemas.</p></li>
+<li><p>User input is required to identify which transactions are relevant for analytical requirements.</p></li>
+</ul>
+<h3>Common Examples</h3>
+<table>
+<tr><th><p>Orders</p></th><th><p>Insurance Claims</p></th></tr>
+<tr><td style="background: #FFF4E6;"><p>Customer purchase transactions with line items and totals</p></td><td><p>Filed claims with amounts and processing details</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Salary Payments</p></td><td><p>Hotel Bookings</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Payroll transactions with amounts and payment dates</p></td><td><p>Reservation events with rates and stay duration</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Attendance</p></td><td><p>Log In</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Entering a room</p></td><td><p>Each log in and log out event in a system</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>IoT measurements</p></td><td><p>Exam Attempt</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Measuring a specific value by a sensor at any point in time</p></td><td><p>Each exam attempt, even a failed one, is an event</p></td></tr>
+</table>
+<h2>🧩 Component Entities</h2>
+<p><span style="color: #59a8fb;"><strong>Component entities</strong></span> are directly related to transaction entities through <span style="color: #59a8fb;"><strong>one-to-many relationships</strong></span>. They describe the individual components or dimensions that define each business event, providing essential context.</p>
+<h3>Role in Dimensional Modeling</h3>
+<ul>
+<li><p>Component entities become <span style="color: #59a8fb;"><strong>dimension tables</strong></span> in star schemas.</p></li>
+<li><p>They provide the business context for slicing, dicing, and filtering fact data.</p></li>
+<li><p>They answer fundamental analytical questions: <span style="color: #59a8fb;"><strong>who, what, when, where, how, and why</strong></span> for each transaction.</p></li>
+</ul>
+<table>
+<tr><th><p>Customer</p></th><th><p>Product</p></th></tr>
+<tr><td style="background: #FFF4E6;"><p>Who made the purchase or participated in the event</p></td><td><p>What was sold or what item was involved</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Location</p></td><td><p>Period</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Where the transaction occurred or was processed</p></td><td><p>When the transaction took place in time</p></td></tr>
+</table>
+<p><span style="color: #59a8fb;"><strong>Important Note</strong></span>: Time is a critical component entity because historical analysis is a core requirement of data warehouses. Every fact table should include time dimensions for trend analysis.</p>
+<h2>🏷️ Classification Entities</h2>
+<p><span style="color: #59a8fb;"><strong>Classification entities</strong></span> are related to component entities through chains of <span style="color: #59a8fb;"><strong>one-to-many relationships</strong></span>. They are functionally dependent on component entities, representing hierarchical structures.</p>
+<h3>Purpose</h3>
+<ul>
+<li><p>Represent <span style="color: #59a8fb;"><strong>hierarchies</strong></span> embedded within the data model.</p></li>
+<li><p>Capture classification and grouping structures such as categories and levels.</p></li>
+<li><p>Enable <span style="color: #59a8fb;"><strong>drill-down and roll-up analysis</strong></span> paths.</p></li>
+<li><p>If data is suitable for a low-cardinality dropdown in a UI, it&#39;s likely a Classification entity.</p></li>
+</ul>
+<h3>Role in Dimensional Modeling</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Collapse Hierarchies</strong></span>: Classification entities can be collapsed into component entities when creating dimension tables.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Support Analysis</strong></span>: They support hierarchical analysis such as roll-ups and drill-downs across levels.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Preserve Meaning</strong></span>: They simplify the analytical model while preserving business meaning and relationships.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-055.png" alt="Classification Entity Examples" style="max-width: 500px; margin-left: 0" />
+<h2>🧐 Resolving Ambiguities</h2>
+<p>When an entity fits into multiple categories, a <span style="color: #59a8fb;"><strong>precedence hierarchy</strong></span> is used:</p>
+<ol>
+<li><p><span style="color: #59a8fb;"><strong>Transaction Entity</strong></span> (highest precedence)</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Classification Entity</strong></span></p></li>
+<li><p><span style="color: #59a8fb;"><strong>Component Entity</strong></span> (lowest precedence)</p></li>
+</ol>
+<p>This hierarchy determines an entity&#39;s primary role in a star schema.</p>
+<img src="images/datawarehouses/dw-056.png" alt="Precedence Hierarchy" style="max-width: 500px; margin-left: 0" />
+<h2>🌲 Hierarchies</h2>
+<p><span style="color: #59a8fb;"><strong>Hierarchies</strong></span> are crucial in dimensional modeling, forming the primary basis for deriving dimensional models from ER models. Most dimension tables embed these hierarchies. An ER model hierarchy is a sequence of entities joined by one-to-many relationships, aligned in the same direction.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Parent/Child</strong></span>: State is the parent of Region; Region is the child of State.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Descendants</strong></span>: Sale Item, Sale, Sale Location, Region are all descendants of State.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Ancestors</strong></span>: Sale, Sale Location, Region, State are all ancestors of Sale Item.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-057.png" alt="ER Diagram with Hierarchies" style="max-width: 500px; margin-left: 0" />
+<h3>Maximal Hierarchy</h3>
+<p>A hierarchy is <span style="color: #59a8fb;"><strong>maximal</strong></span> if it cannot be extended further upwards or downwards, capturing the complete scope of a business relationship.</p>
+<h3>Minimal Entity</h3>
+<p>An entity is <span style="color: #59a8fb;"><strong>minimal</strong></span> if it resides at the very bottom of a maximal hierarchy, possessing no further one-to-many relationships pointing away from it (&quot;leaf&quot; entities).</p>
+<h3>Maximal Entity</h3>
+<p>An entity is <span style="color: #59a8fb;"><strong>maximal</strong></span> if it is positioned at the top of a maximal hierarchy, meaning it has no further many-to-one relationships leading to it (&quot;root&quot; entities).</p>
+<h3>Entity Hierarchies Example</h3>
+<p>From an example data model, we can identify:</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Minimal Entities</strong></span>: Sale Item and Sale Fee (2 entities).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Maximal Entities</strong></span>: Period, CustomerType, State, Location Type, Product Type, and Fee Type (6 entities).</p></li>
+</ul>
+<img src="images/datawarehouses/dw-058.png" alt="Entity Hierarchies ERD" style="max-width: 500px; margin-left: 0" />
+<p>These hierarchies define detailed relationships and lineage, providing a structured view for analysis.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Product Hierarchies</strong></span>: Product-type <span>$\rightarrow$</span> Product <span>$\rightarrow$</span> Sale-item; Fee-type <span>$\rightarrow$</span> Sale-fee.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Customer Hierarchies</strong></span>: State <span>$\rightarrow$</span> Region <span>$\rightarrow$</span> Customer <span>$\rightarrow$</span> Sale <span>$\rightarrow$</span> Sale-fee (and Sale-item); Customer-type <span>$\rightarrow$</span> Customer <span>$\rightarrow$</span> Sale <span>$\rightarrow$</span> Sale-fee (and Sale-item).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Location Hierarchies</strong></span>: Location-type <span>$\rightarrow$</span> Location <span>$\rightarrow$</span> Sale <span>$\rightarrow$</span> Sale-fee (and Sale-item); State <span>$\rightarrow$</span> Region <span>$\rightarrow$</span> Location <span>$\rightarrow$</span> Sale <span>$\rightarrow$</span> Sale-fee (and Sale-item).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Time Hierarchies</strong></span>: Period(sale-date) <span>$\rightarrow$</span> Sale <span>$\rightarrow$</span> Sale-fee (and Sale-item); Period(posted-date) <span>$\rightarrow$</span> Sale <span>$\rightarrow$</span> Sale-fee (and Sale-item).</p></li>
+</ul>
+<h2>🔨 Producing Dimensional Models</h2>
+<p>Dimensional modeling employs specialized operators to transform ER models into star schemas, optimizing data for analytical queries.</p>
+<h3>Operator 1: Collapse Hierarchy</h3>
+<p>This foundational operator consolidates attributes from a higher-level entity into a lower-level entity within a one-to-many hierarchy.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Process</strong></span>: A deliberate act of <span style="color: #59a8fb;"><strong>denormalization</strong></span>, introducing redundancy to create flatter, more performant dimension tables.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Example</strong></span>: Attributes of a &#39;State&#39; entity (State ID, State Name) are absorbed into the &#39;Region&#39; entity, creating a single, broader dimension.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-059.png" alt="Collapsing State into Region" style="max-width: 500px; margin-left: 0" />
+<img src="images/datawarehouses/dw-060.png" alt="Collapsing State and Region into Location" style="max-width: 500px; margin-left: 0" />
+<h3>Operator 2: Aggregation</h3>
+<p>The <span style="color: #59a8fb;"><strong>aggregation operator</strong></span> is applied to a transaction entity to create a new entity containing summarized data.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Process</strong></span>: Involves selecting a subset of <span style="color: #59a8fb;"><strong>numerical attributes</strong></span> to aggregate and another subset of attributes to group by.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Example</strong></span>: Applying aggregation to a <code>Sale Item</code> entity to create a <code>Product Summary</code> entity (e.g., total sales amount, average quantity per order, average price per item on a daily basis).</p><ul>
+<li><p><span style="color: #59a8fb;"><strong>Aggregation Attributes</strong></span>: Quantity, Price.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Grouping Attributes</strong></span>: Product ID, Sale Date.</p></li>
+</ul></li>
+<li><p><span style="color: #59a8fb;"><strong>Important</strong></span>: Aggregation inherently involves a <span style="color: #59a8fb;"><strong>loss of detailed information</strong></span>. Once data is summarized, it&#39;s not possible to reconstruct individual details.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Consequence</strong></span>: In ETL, one fact table is usually kept at the lowest granularity, and then other aggregate fact tables are created.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-061.png" alt="Numerical Aggregation Example" style="max-width: 500px; margin-left: 0" />
+<hr />
+<h1>📊 Dimensional Modeling: Fact Tables</h1>
+<p>Fact tables are the core of a dimensional model, storing measurable business metrics and linking to dimension tables for context. They are typically narrow (few columns) but immense in terms of rows (billions+).</p>
+<h2>📝 Fact Table Structure</h2>
+<p>Consider a sales fact table named <code>f_Sales</code> as an example of good design practices:</p>
+<pre><code class="language-sql">CREATE TABLE f_Sales (
+    -- Dimension keys
+    OrderDate_Date_FK INT NOT NULL,
+    ShipDate_Date_FK INT NOT NULL,
+    Product_FK INT NOT NULL,
+    Salesperson_FK INT NOT NULL,
+    -- Attributes
+    SalesOrderNo INT NOT NULL,
+    SalesOrderLineNo SMALLINT NOT NULL,
+    -- Measures
+    Quantity INT NOT NULL,
+    -- Audit attributes
+    AuditMissing BIT NOT NULL,
+    AuditCreatedDate DATE NOT NULL,
+    AuditCreatedBy VARCHAR(15) NOT NULL,
+    AuditLastModifiedDate DATE NOT NULL,
+    AuditLastModifiedBy VARCHAR(15) NOT NULL
+);</code></pre>
+<h3>Primary Key and Dimension Keys</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Primary Key</strong></span>: Fact tables usually <span style="color: #59a8fb;"><strong>do not have an explicit primary key</strong></span>. It often doesn&#39;t serve a useful purpose and increases storage size unnecessarily. The primary key is often implied by the set of dimension keys and attributes.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Dimension Keys</strong></span>: References to the surrogate keys (or higher-level attributes) in related dimensions. An unusual fact table would not include at least one date dimension key.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Role-Playing Dimension</strong></span>: A fact table can reference a dimension multiple times. For example, <code>OrderDate_Date_FK</code> and <code>ShipDate_Date_FK</code> both reference the same physical date dimension, each playing a distinct role.</p></li>
+</ul>
+<h3>Attributes, Measures, and Audit Attributes</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Attributes</strong></span>: Provide additional information and set the granularity of fact data, but are neither dimension keys nor dimension attributes, nor measures. Examples include sales order numbers or tracking numbers. An attribute can form a <span style="color: #59a8fb;"><strong>degenerate dimension</strong></span> for analysis.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Measures</strong></span>: Typically numeric and commonly <span style="color: #59a8fb;"><strong>additive</strong></span> (can be summed and summarized). The <code>Quantity</code> column in the example is a measure.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Audit Attributes</strong></span>: Optional attributes that track when and how fact records were created or modified, and can include diagnostic information from ETL processes.</p></li>
+</ul>
+<h2>📏 Fact Table Size and Design Concepts</h2>
+<p>Fact tables vary in size based on dimensionality, granularity, number of measures, and amount of history. They are typically <span style="color: #59a8fb;"><strong>narrow</strong></span> (fewer columns) but <span style="color: #59a8fb;"><strong>big or immense</strong></span> in terms of rows (exceeding billions).</p>
+<h3>Three Types of Fact Tables</h3>
+<ol>
+<li><p><span style="color: #59a8fb;"><strong>Transaction fact tables</strong></span></p></li>
+<li><p><span style="color: #59a8fb;"><strong>Periodic snapshot fact tables</strong></span></p></li>
+<li><p><span style="color: #59a8fb;"><strong>Accumulating snapshot fact tables</strong></span></p></li>
+</ol>
+<h3>Measure Types</h3>
+<p>Measures are typically numeric and commonly additive. However, some measures are <span style="color: #59a8fb;"><strong>semi-additive</strong></span> or <span style="color: #59a8fb;"><strong>non-additive</strong></span>.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Additive Measures</strong></span>: Can be summed across any dimension (e.g., order quantity, sales revenue in a single currency).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Semi-Additive Measures</strong></span>: Can be summed across certain dimensions only.</p><ul>
+<li><p>Any measure in a periodic snapshot fact table cannot be summed across other time periods.</p></li>
+<li><p>A stock balance measure in an inventory fact table cannot be summed across other products.</p></li>
+<li><p>Sales revenue with a currency dimension key cannot be summed across currencies.</p></li>
+</ul></li>
+<li><p><span style="color: #59a8fb;"><strong>Non-Additive Measures</strong></span>: Cannot be summed across any dimension (e.g., temperature reading, rates, ratios). These can still be aggregated using count, distinct count, minimum, maximum, or average.</p></li>
+</ul>
+<h2>🛒 Transaction Fact Tables</h2>
+<p>A <span style="color: #59a8fb;"><strong>transaction fact table</strong></span> stores business events or transactions. Each row stores facts in terms of dimension keys and measures, and optionally other attributes. All data is fully known when inserted and never changes (except for error correction).</p>
+<ul>
+<li><p>Typically store facts at the <span style="color: #59a8fb;"><strong>lowest possible level of granularity</strong></span>.</p></li>
+<li><p>Contain measures that are <span style="color: #59a8fb;"><strong>additive</strong></span> across all dimensions.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Example</strong></span>: A sales fact table storing every sales order line.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-062.png" alt="Transaction Fact Table Example" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p><code>fact_sale</code> has the granularity of the most granular table in the source database (e.g., <code>sales_order_details</code>, <code>sales_items</code>).</p></li>
+</ul>
+<h2>📸 Periodic Snapshot Fact Tables</h2>
+<p>A <span style="color: #59a8fb;"><strong>periodic snapshot fact table</strong></span> stores measurements at a predefined time or specific intervals. It provides a summary of key metrics over time and is useful for trend analysis. Measures are always <span style="color: #59a8fb;"><strong>semi-additive</strong></span>.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Example</strong></span>: An inventory fact table loaded daily with the end-of-day stock balance of every product.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Use Case</strong></span>: Used when recording large volumes of transactions is expensive and does not support useful analytical requirements, focusing on trends rather than individual transactions.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-063.png" alt="Periodic Snapshot Fact Table Example" style="max-width: 500px; margin-left: 0" />
+<h2>🔄 Accumulating Snapshot Fact Tables</h2>
+<p>An <span style="color: #59a8fb;"><strong>accumulating snapshot fact table</strong></span> stores measurements that accumulate across a well-defined period or workflow. It often records the state of a business process at distinct stages or milestones, which might take days, weeks, or months to complete.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Initial Event</strong></span>: A fact row is loaded soon after the first event in a process.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Milestone Updates</strong></span>: The row is updated in a predictable sequence every time a milestone event occurs.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Process Completion</strong></span>: Updates continue until the process completes.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-064.png" alt="Accumulating Snapshot Fact Table Process" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p>Have <span style="color: #59a8fb;"><strong>multiple date dimension keys</strong></span>, each representing a milestone event.</p></li>
+<li><p>Some dimension keys might record an <code>N/A</code> state until a certain milestone is reached.</p></li>
+<li><p>Measures typically record <span style="color: #59a8fb;"><strong>durations</strong></span> between milestones, providing valuable insight into business workflows.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-065.png" alt="Accumulating Snapshot Fact Table ERD" style="max-width: 500px; margin-left: 0" />
+<h2>👻 Factless Fact Tables</h2>
+<p>A <span style="color: #59a8fb;"><strong>factless fact table</strong></span> does not contain any measure columns. It typically records events or occurrences (e.g., students attending class). From an analytics perspective, a measurement can be achieved by counting fact rows.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Purpose</strong></span>: Records the occurrence of an event or condition with no numeric measures.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Examples</strong></span>: &quot;customer viewed product in store on date&quot;, &quot;customer eligible for promotion in store on date&quot;, &quot;customer-product-store had at least one touchpoint&quot;.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-066.png" alt="Factless Fact Table Example" style="max-width: 500px; margin-left: 0" />
+<pre><code>| dim_customer   |              | fact_customer_product_store_event   |              | dim_store       |              |
+|----------------|--------------|-------------------------------------|--------------|-----------------|--------------|
+| customer_skey  | int          | customer_skey                       | int          | store_skey      | int          |
+| customer_code  | varchar(50)  | product_skey                        | int          | store_code      | varchar(50)  |
+| full_name      | varchar(200) | store_skey                          | int          | store_name      | varchar(200) |
+| segment        | varchar(50)  | event_type_skey                     | int          | city            | varchar(100) |
+|                |              | event_ts                            | datetime     | region          | varchar(100) |
+|                |              | source system                       | varchar(50)  |                 |              |
+| dim_product    |              | source_event_id                     | varchar(100) | dim_event_type  |              |
+| product_skey   | int          |                                     |              | event_type_skey | int          |
+| sku            | varchar(50)  |                                     |              | event_type_code | varchar(50)  |
+| product_name   | varchar(200) |                                     |              | event_type_name | varchar(200) |
+| category       | varchar(100) |                                     |              | event_group     | varchar(100) |
+| brand          | varchar(100) |                                     |              | is_active       | boolean      |</code></pre>
+<h2>🌌 Fact Constellation Schema &amp; Fact Galaxy Schema</h2>
+<h3>Fact Constellation Schema</h3>
+<p>An aggregate fact table represents a rollup of a base fact table to a lower dimensionality and/or higher granularity. Its purpose is to accelerate query performance for commonly queried dimensions.</p>
+<ul>
+<li><p>Consists of a set of star schemas with <span style="color: #59a8fb;"><strong>hierarchically linked fact tables</strong></span>.</p></li>
+<li><p>Links between fact tables provide the ability to <span style="color: #59a8fb;"><strong>drill down</strong></span> between levels of detail (e.g., from Sale to Sale Item).</p></li>
+</ul>
+<img src="images/datawarehouses/dw-067.png" alt="Fact Constellation Schema Example" style="max-width: 500px; margin-left: 0" />
+<h3>Fact Galaxy Schema</h3>
+<p>More generally, a set of star schemas or constellations can be combined to form a <span style="color: #59a8fb;"><strong>galaxy</strong></span>.</p>
+<ul>
+<li><p>A galaxy is a collection of star schemas with <span style="color: #59a8fb;"><strong>shared dimensions</strong></span>.</p></li>
+<li><p>Unlike a constellation schema, the fact tables in a galaxy <span style="color: #59a8fb;"><strong>do not need to be directly related</strong></span>.</p></li>
+</ul>
+<img src="images/datawarehouses/dw-068.png" alt="Fact Galaxy Schema Example" style="max-width: 500px; margin-left: 0" />
+<hr />
+<h1>📥 Dimensional Modeling: Loading Dimensions and Facts</h1>
+<p>Loading a dimensional model involves periodically running an <span style="color: #59a8fb;"><strong>Extract, Transform, and Load (ETL) process</strong></span>. This process orchestrates the staging of source data, synchronization of dimension data, insertion of rows into fact tables, and recording of auditing data and errors.</p>
+<img src="images/datawarehouses/dw-069.png" alt="ETL Process for Dimensional Model" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Pipelines</strong></span>: Build workflows to orchestrate the ETL process, executing SQL scripts, stored procedures, etc.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Dataflows</strong></span>: Develop low-code logic to ingest data from hundreds of sources using the Power Query experience.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>ETL Development</strong></span>: Can be complex and challenging, often consuming 60-80% of a data warehouse development effort.</p></li>
+</ul>
+<h2>⚙️ Orchestration</h2>
+<p>The general workflow of an ETL process follows a structured sequence:</p>
+<table>
+<tr><th><p>01</p></th><th><p>02</p></th></tr>
+<tr><td style="background: #FFF4E6;"><p><span style="color: #59a8fb;"><strong>Load Staging Tables</strong></span></p></td><td><p><span style="color: #59a8fb;"><strong>Process Dimension Tables</strong></span></p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Optionally extract and stage source data for processing</p></td><td><p>Synchronize dimension data and handle historical changes</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>03</p></td><td><p>04</p></td></tr>
+<tr><td style="background: #FFF4E6;"><p><span style="color: #59a8fb;"><strong>Process Fact Tables</strong></span></p></td><td><p><span style="color: #59a8fb;"><strong>Post-Processing Tasks</strong></span></p></td></tr>
+<tr><td style="background: #FFF4E6;"><p>Load fact data with proper dimension key lookups</p></td><td><p>Trigger refreshes and send notifications</p></td></tr>
+</table>
+<img src="images/datawarehouses/dw-070.png" alt="ETL Process Workflow" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Dimension tables</strong></span> should be processed first, especially when there are dependencies (e.g., an outrigger dimension like geography must be processed before customer and vendor dimensions).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Fact tables</strong></span> can be processed once all dimension tables are complete.</p></li>
+<li><p>Post-processing includes triggering refreshes of semantic models and sending notifications about the ETL outcome.</p></li>
+</ul>
+<h2>staging data 🚧</h2>
+<p>Staging data is an intermediary step in the ETL process, where raw source data is temporarily stored before transformation and loading into the data warehouse.</p>
+<img src="images/datawarehouses/dw-071.png" alt="Benefits of Staging Data" style="max-width: 500px; margin-left: 0" />
+<h3>Data Virtualization Alternatives</h3>
+<p>Consider data virtualization to reduce data movement and improve efficiency:</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Mirroring</strong></span>: A low-cost, low-latency solution that creates a replica of your data in OneLake.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>PolyBase in SQL Server</strong></span>: Allows T-SQL queries to join data from external sources to relational tables.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>OneLake Shortcuts</strong></span>: Point to other storage locations containing source data, usable as tables in T-SQL queries.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Azure SQL Managed Instance</strong></span>: Execute T-SQL queries on files in Azure Data Lake Storage Gen2 or Azure Blob Storage and combine with locally stored relational data.</p></li>
+</ul>
+<h2>🔄 Transform Data</h2>
+<p>The structure of source data often differs from the destination structures of dimensional model tables. The ETL process must reshape and transform source data to ensure <span style="color: #59a8fb;"><strong>quality and consistency</strong></span>.</p>
+<ul>
+<li><p>&quot;Garbage in, garbage out&quot; applies: avoid loading low-quality data into dimensional model tables.</p></li>
+</ul>
+<h3>Key Transformation Activities</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Combine Data</strong></span>: Integrate data from different sources based on matching keys or append data sharing a common structure (e.g., merging product data using SKU, unioning sales data).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Detect Historical Change</strong></span>: Detect and appropriately store changes in dimension tables to maintain historical accuracy (SCD types).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Convert Data Types</strong></span>: Convert data types to align with the dimensional model tables.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Aggregate Data</strong></span>: Reduce fact table dimensionality or raise the granularity of facts (e.g., grouping sales by dimension keys without storing sales order numbers).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Calculations</strong></span>: Produce values for dimensional model tables (e.g., concatenate first and last names for full name, calculate gross sales revenue).</p></li>
+</ul>
+<h2>⬆️ Load Data</h2>
+<p>Various data ingestion options are available for loading tables in a Fabric Warehouse, each suited for different scenarios.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong><code>COPY INTO</code></strong></span><span style="color: #59a8fb;"><strong> (T-SQL)</strong></span>: Useful for Parquet or CSV files stored in external Azure storage accounts (ADLS Gen2, Azure Blob Storage).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Dataflows</strong></span>: Provide a code-free experience to transform and clean data with an intuitive interface.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Pipelines</strong></span>: Can include activities that run T-SQL statements, perform lookups, or copy data from a source to a destination.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Cross-Warehouse Ingestion</strong></span>: When data is stored in the same workspace, allows joining different warehouse or lakehouse tables. Supports <code>INSERT...SELECT</code>, <code>SELECT INTO</code>, and <code>CREATE TABLE AS SELECT</code> (CTAS) commands for efficient set-based operations.</p></li>
+</ul>
+<h2>📝 Logging</h2>
+<p>ETL processes require dedicated monitoring and maintenance. Logging the results of the ETL process to non-dimensional model tables in your warehouse is recommended.</p>
+<h3>ETL Process Logging</h3>
+<ul>
+<li><p>Unique ID for each execution.</p></li>
+<li><p>Start time and end time.</p></li>
+<li><p>Status (success or failure).</p></li>
+<li><p>Any errors encountered.</p></li>
+</ul>
+<h3>Table-Level Logging</h3>
+<ul>
+<li><p>Start and end times.</p></li>
+<li><p>Status indicators.</p></li>
+<li><p>Rows inserted, updated, deleted.</p></li>
+<li><p>Final table row count.</p></li>
+<li><p>Error details.</p></li>
+</ul>
+<p>A semantic model dedicated to monitoring ETL processes can help identify bottlenecks and predict future data warehouse size.</p>
+<h3>Operation Logging</h3>
+<ul>
+<li><p>Start and end times of semantic model refresh operations.</p></li>
+<li><p>Performance metrics.</p></li>
+<li><p>Resource utilization.</p></li>
+</ul>
+<h2>🌳 Process Dimension Tables</h2>
+<p>Processing a dimension table involves synchronizing the data warehouse data with source systems. Source data is transformed, prepared, and then matched with existing dimension table data by joining on <span style="color: #59a8fb;"><strong>business keys</strong></span>.</p>
+<img src="images/datawarehouses/dw-072.png" alt="Processing a Dimension Table" style="max-width: 500px; margin-left: 0" />
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>New Products</strong></span>: Rows are inserted into the dimension table.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Modified Products</strong></span>: Existing rows are either updated (SCD type 1) or a new version is inserted and the existing one expired (SCD type 2).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Historical Tracking</strong></span>: SCD type 2 expires current versions and inserts new versions.</p></li>
+</ul>
+<h2>📊 Process Fact Tables</h2>
+<p>Processing a fact table involves synchronizing data with source system facts. Source data is transformed, and for each dimension key, a lookup determines the surrogate key value to store in the fact row.</p>
+<img src="images/datawarehouses/dw-073.png" alt="Processing a Fact Table" style="max-width: 500px; margin-left: 0" />
+<h3>Dimension Key Lookups</h3>
+<ul>
+<li><p>When a dimension supports SCD type 2, the surrogate key for the <span style="color: #59a8fb;"><strong>current version</strong></span> of the dimension member should be retrieved.</p></li>
+<li><p>For date and time dimensions, the surrogate key can often be computed (e.g., YYYYMMDD or HHMM format).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Integrity Check</strong></span>: Since many DW systems don&#39;t enforce foreign keys, the ETL process must check for integrity when loading fact tables.</p></li>
+</ul>
+<h3>Handling Lookup Failures</h3>
+<ul>
+<li><p>If a dimension key lookup fails (indicating a source system integrity issue), the fact row must still be inserted with a valid dimension key.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Approach 1</strong></span>: Store a special dimension member like <code>Unknown</code>.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Approach 2</strong></span>: If the natural key is valid, insert a new dimension member and store its surrogate key.</p></li>
+</ul>
+<h3>Incremental vs. Full Reload</h3>
+<ul>
+<li><p>Whenever possible, a fact table should be loaded <span style="color: #59a8fb;"><strong>incrementally</strong></span> (new facts detected and inserted). This is more scalable and reduces workload.</p></li>
+<li><p>Truncating and reloading a large fact table should be a <span style="color: #59a8fb;"><strong>last resort</strong></span> due to cost, resources, and complexity with SCD type 2 dimensions.</p></li>
+</ul>
+<h3>Detecting New Facts</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Source System Identifiers/Timestamps</strong></span>: Rely on these to efficiently detect new facts (e.g., storing the latest sales order number as a high watermark).</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Change Data Capture (CDC)</strong></span>: SQL Server and Azure SQL Managed Instance offer CDC to track row changes.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Create Date Columns</strong></span>: Can reliably detect new orders.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Database Triggers</strong></span>: Add triggers to relational tables that store keys of inserted, updated, or deleted records for efficient change detection.</p></li>
+</ul>
+<h3>Inferred Dimension Members</h3>
+<p>When a fact load process inserts a new dimension member, it&#39;s known as an <span style="color: #59a8fb;"><strong>inferred member</strong></span>.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Initial Creation</strong></span>: Only the natural key is known; the fact load process creates a new dimension member with <code>Unknown</code> attribute values.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Late Arriving Details</strong></span>: When details arrive later, the dimension load process updates the dimension row.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Flag as Inferred</strong></span>: Set an audit attribute like <code>IsInferredMember</code> to <code>TRUE</code>.</p></li>
+</ul>
+<h2>✏️ Fact Updates or Deletions</h2>
+<p>You might be required to update or delete fact data (e.g., canceled sales orders, changed order quantities).</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Soft Deletes Strategy</strong></span>: For canceled orders, change the sales order status (e.g., from <code>Open</code> to <code>Canceled</code>) rather than deleting the row. This preserves history.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Identification Attributes</strong></span>: Include attributes like sales order number and line number in the fact table to help identify rows for modification. Index these columns for efficient operations.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Quantity Updates</strong></span>: For quantity changes, an update of the fact row quantity measure is necessary.</p></li>
+<li><p><span style="color: #59a8fb;"><strong>Periodic Processing</strong></span>: If fact data was inserted using an <code>Unknown</code> dimension member, run a periodic process to retrieve current source data and update dimension keys to valid values.</p></li>
+</ul>
+<p>All reporting queries and Power BI semantic models should filter out soft-deleted records to ensure accurate reporting.</p>
+<h2>➡️ Pipeline Lineage</h2>
+<h3>Transformations, Loading Dimensions, Facts, and Derived Facts</h3>
+<img src="images/datawarehouses/dw-074.png" alt="Data Pipeline Lineage" style="max-width: 500px; margin-left: 0" />
+<p>This diagram illustrates the flow of data through a pipeline, from raw (bronze) to refined (silver) tables, then into dimension (<code>dim</code>) tables, and finally into fact (<code>fact</code>) tables for analysis. This process transforms and loads data through different stages, preparing it for reporting and analytics.</p>
+    </div>
+</body>
+</html>

@@ -1,10 +1,15 @@
-# Linear Algebra Study Materials
+# StudyBuddy
 
-This project contains a collection of study materials and notes for Linear Algebra midterms, presented as a static website.
+This project contains study materials presented as a static website with two tracks:
+
+*   Linear Algebra
+*   Data Warehouses & Analytics
 
 ## Structure
 
-*   **`index.html`**: The homepage that serves as a central navigation hub, linking to the individual study guides.
+*   **`index.html`**: Global StudyBuddy welcome page (choose a study track).
+*   **`linear_algebra.html`**: Landing page for the Linear Algebra materials.
+*   **`data_warehouses.html`**: Complete Data Warehouses & Analytics study set.
 *   **`first_midterm.html`**: Comprehensive notes and materials covering topics for the First Midterm (Matrices, Systems of Equations, Vector Algebra).
 *   **`second_midterm.html`**: Comprehensive notes and materials covering topics for the Second Midterm (Determinants, Vector Spaces, Eigenvalues).
 *   **`style.css`**: Centralized stylesheet containing the design system, variables for light/dark mode, and component styles.
@@ -19,4 +24,4 @@ This project contains a collection of study materials and notes for Linear Algeb
 
 ## Usage
 
-Simply open `index.html` in any modern web browser to start browsing the materials.
+Open `index.html` in any modern web browser to start browsing the materials.
