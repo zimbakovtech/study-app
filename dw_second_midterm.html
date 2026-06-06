@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Data Warehouses - Second Midterm</title>
+<link href="style.css" rel="stylesheet"/>
+<script src="script.js"></script>
+<script src="enhanced-features.js"></script>
+</head>
+<body data-page="study">
+<nav class="study-nav">
+<div class="nav-left">
+<a class="nav-btn nav-back-btn" href="data_warehouses.html">← Home</a>
+<h2 class="nav-title">Second Midterm</h2>
+</div>
+<div class="nav-right">
+<a class="nav-btn nav-link-desktop" href="dw_first_midterm.html">First Midterm</a>
+<a class="nav-btn nav-link-desktop" href="dw_second_midterm.html">Second Midterm</a>
+<button class="nav-btn" id="search-toggle" title="Search">🔍</button>
+<button class="nav-btn" id="bookmark-toggle" title="Bookmarks">🔖</button>
+</div>
+</nav>
+<div id="search-panel" class="side-panel">
+<div class="panel-header">
+<button class="panel-close">×</button>
+</div>
+<div class="panel-content">
+<input type="text" id="search-input" placeholder="Search in the text..." />
+<div id="search-results"></div>
+</div>
+</div>
+<div id="bookmarks-panel" class="side-panel">
+<div class="panel-header">
+<button class="panel-close">×</button>
+</div>
+<div class="panel-content">
+<p class="panel-hint">Click a heading to bookmark it</p>
+<div id="bookmarks-list"></div>
+</div>
+</div>
+<div class="container">
+<h1>Data Warehouses and Analytics - Study Notes</h1>
+<h2>Slowly Changing Dimensions (SCDs)</h2>
+<h3>Introduction and Purpose</h3>
+<p>Slowly Changing Dimensions (SCDs) are a core technique in data warehousing that enables the preservation of historical integrity in analytical systems. Unlike operational databases that overwrite past information, data warehouses use SCDs to meticulously track every change to descriptive attributes within dimension tables (e.g., Customer, Product). This allows analytical queries to reflect past states accurately, enabling trend analysis, performance measurement, and strategic decision-making based on complete history.</p>
+<p>SCDs transform data warehouses into a living history book, providing robust business intelligence. The foundation is <span style="color: #59a8fb;"><strong>historical integrity</strong></span>, managed through specific <span style="color: #59a8fb;"><strong>SCD strategies</strong></span> (Type 1 overwrite, Type 2 versioning, Type 3 partial), which ultimately deliver <span style="color: #59a8fb;"><strong>analytical value</strong></span> for informed decision-making.</p>
+<h3>What are Slowly Changing Dimensions?</h3>
+<p>Different types of SCDs offer varying levels of historical preservation and complexity. The primary types are:</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Type 0 (Fixed Dimension):</strong></span> The dimension attribute never changes; original values are retained.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Type 1 (Overwrite):</strong></span> Old values are overwritten by new ones; no history is preserved.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Type 2 (Add New Row):</strong></span> A new row is added for each change, preserving full history with start and end dates or flags.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Type 3 (Add New Column):</strong></span> A new column is added to store the previous value of an attribute, preserving partial history (current and one previous state).</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Type 4 (Add New Mini-Dimension):</strong></span> History is tracked in a separate mini-dimension table linked to the main dimension, suitable for rapidly changing attributes.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Type 5 (Hybrid of Type 1 and 4):</strong></span> Combines Type 1 and Type 4; a Type 1 attribute in the main dimension is combined with a Type 4 mini-dimension.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Type 6 (Hybrid of Type 1, 2, and 3):</strong></span> Combines all three methods within a single dimension.</p>
+</li>
+</ul>
+<h3>SCD Type 0</h3>
+<p>Once set, ignore any changes; these values are considered <span style="color: #59a8fb;"><strong>immutable</strong></span>. For example, in a Customer dimension, attributes like <code>FirstDesignation</code>, <code>JoinedDate</code>, and <code>DateFirstPurchase</code> would use Type 0 — they are never updated.</p>
+<ul>
+<li><p>No historical tracking performed for these attributes.</p>
+</li>
+<li><p>Suitable for whole tables in &quot;insert-only&quot; scenarios (e.g., incremental load of new events where past data never changes).</p>
+</li>
+</ul>
+<h3>SCD Type 1</h3>
+<p><span style="color: #59a8fb;"><strong>Simply overwrite data when changes occur.</strong></span> Used for filling in missing/null values or correcting errors where historical context is not critical (e.g., updating <code>AnnualIncome</code>).</p>
+<ul>
+<li><p>Existing records are updated directly; no historical data preserved.</p>
+</li>
+<li><p>Often called <span style="color: #59a8fb;"><strong>Upsert scenarios</strong></span>: correctly track inserts of new primary keys (PKs), or updates if the row existed but some columns changed.</p>
+</li>
+<li><p>Example: If a customer&#x27;s <code>MaritalStatus</code> changes from &#x27;M&#x27; to &#x27;S&#x27;, the old value is lost.</p>
+</li>
+</ul>
+<h3>SCD Type 2</h3>
+<p>The most popular method — <span style="color: #59a8fb;"><strong>history is preserved by adding new rows</strong></span>. Uses additional columns: <code>StartDate</code>, <code>EndDate</code>, and <code>IsCurrent</code> flag.</p>
+<ul>
+<li><p>When an attribute of an existing record changes:</p>
+<ul>
+<li><p>The current record&#x27;s <code>EndDate</code> is updated to the effective date of the change, and <code>IsCurrent</code> is set to <code>No</code>.</p>
+</li>
+<li><p>A new record is inserted with the updated values, <code>IsCurrent = Yes</code>, <code>StartDate</code> set to the effective date, and <code>EndDate</code> set to a high date (e.g., &#x27;9999-12-31&#x27;) indicating the active record.</p>
+</li>
+</ul>
+</li>
+<li><p>This simplifies filtering the active record on a specific date.</p>
+</li>
+<li><p>Example: Customer changes designation from &quot;Management&quot; to &quot;Snr. Management&quot;. Two rows now exist: the old one with <code>EndDate = 2021-06-01</code>, <code>IsCurrent = No</code>; the new one with <code>StartDate = 2021-06-01</code>, <code>EndDate = 9999-12-31</code>, <code>IsCurrent = Yes</code>.</p>
+</li>
+</ul>
+<p><span style="color: #59a8fb;"><strong>Key columns for SCD 1 &amp; 2:</strong></span></p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>SCD_Key:</strong></span> Unique surrogate key generated during SCD processing (sequential or GUID).</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>SCD_IdHash:</strong></span> Hash (MD5, SHA2) of the business primary key, used to match incoming data with existing records.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>SCD_ColumnsHash:</strong></span> Hash of all non-primary key (or tracked columns) attributes, used to detect changes.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>SCD_DataLoadId:</strong></span> Identifier (timestamp or batch ID) reflecting the data load process start time (optional).</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>SCD_LastModifiedDate:</strong></span> Timestamp of last modification.</p>
+</li>
+<li><p>For SCD2 only:</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>SCD_StartTime</strong></span> / <span style="color: #59a8fb;"><strong>SCD_EndTime</strong></span></p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>SCD_IsCurrent:</strong></span> Binary flag (1 for active version).</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>SCD_RowVersion:</strong></span> Incremental version number.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>SCD_FirstKey:</strong></span> Optional; first key record to compare versions of the same logical record.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3>SCD Type 3</h3>
+<p><span style="color: #59a8fb;"><strong>History kept in additional columns.</strong></span> Simple but limited to the last version only.</p>
+<ul>
+<li><p>Example: Adding a <code>PreviousDesgination</code> column to store the prior value when a customer&#x27;s designation changes.</p>
+</li>
+<li><p>Useful for tracking specific attribute changes where only the immediate previous and current values are needed (e.g., prior address, name change after marriage).</p>
+</li>
+<li><p>Provides simple access to the last known historical value without complex joins.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Limitation:</strong></span> Retains only a fixed, limited history (typically one or two previous states); unsuitable for full audit trails.</p>
+</li>
+</ul>
+<h3>SCD Type 4 — Rapidly Changing Dimensions</h3>
+<p>Designed for attributes that change very frequently, which would create an explosion of rows in Type 2. Attributes that change rapidly (e.g., customer risk type updated monthly) are moved to a separate <span style="color: #59a8fb;"><strong>mini-dimension</strong></span> table.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Problem:</strong></span> Incorporating frequently changing attributes directly into the main dimension (e.g., customer dimension) leads to massive row growth (1M customers × 12 months = 12M records per year).</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Solution:</strong></span> Create a separate &quot;outrigger&quot; dimension for the volatile attributes. The main dimension holds a foreign key to this mini-dimension. This preserves full historical tracking for those attributes without bloating the core dimension.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Benefit:</strong></span> Main dimension remains stable and efficient; specialized mini-dimension handles high-volume changes.</p>
+</li>
+</ul>
+<h3>SCD Type 6</h3>
+<p>A hybrid combining Type 2 and Type 3 — uses both rows and columns for enhanced analysis.</p>
+<ul>
+<li><p>Provides a <span style="color: #59a8fb;"><strong>complete historical view</strong></span> (like Type 2) while allowing <span style="color: #59a8fb;"><strong>immediate access to current and previous attribute values</strong></span> within a single record (like Type 3).</p>
+</li>
+<li><p>Simplifies queries: analysts can see both current and historical states without complex joins.</p>
+</li>
+<li><p>Example table: contains columns like <code>Occupation</code>, <code>CurrentOccupation</code>, <code>StartDate</code>, <code>EndDate</code>, <code>IsCurrent</code>. For a given customer, multiple rows track history, and each row also stores the current occupation value for easy comparison.</p>
+</li>
+</ul>
+<h3>Load Process</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Full loads:</strong></span> Need to account for hard deletes in source; use FULL OUTER JOIN or MERGE to identify changes.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Incremental loads:</strong></span> Apply the desired SCD logic:</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Type 1:</strong></span> New data → If match, replace old records (change detection optional).</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Type 2:</strong></span> New data → If match and change detected, mark old version obsolete, add new version.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Type 3:</strong></span> New data → If match and change detected, modify changed records (update previous value column).</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><span style="color: #59a8fb;"><strong>MERGE example for SCD Type 2 (simplified):</strong></span> Use a MERGE statement to update existing current records (set end date and iscurrent to &#x27;No&#x27;) and insert new rows for changes.</p>
+<h3>Additional Recommendations</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Column naming conventions:</strong></span> Use a prefix like <code>SCD_</code> to distinguish &quot;business&quot; columns from &quot;metadata&quot; columns generated during loading.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Time zones:</strong></span> Generate <code>StartTime</code> and <code>EndTime</code> in UTC to avoid time zone issues when integrating data from multiple locations.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Business timestamps:</strong></span> Instead of using <code>current_date()</code> for start time, translate from a business timestamp column (e.g., <code>IssuedDate</code>, <code>BillingDate</code>, <code>CreatedAt</code>) to keep records in the business domain.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>End date of superseded record:</strong></span> Use the start date of the new record, not a separate generated timestamp.</p>
+</li>
+</ul>
+<h3>Conclusion</h3>
+<p>Type 1 and Type 2 are the most commonly used. SCDs are fundamental for preserving historical data in data warehouses, ensuring accurate time-based analysis. Choosing the appropriate type (e.g., Type 2 for full history, Type 6 for combined row/column tracking) is crucial for meeting specific analytical requirements. Proper implementation ensures data integrity, supports complex business intelligence, and facilitates informed decision-making over time.</p>
+<hr/>
+<h2>Handling Late-Arriving Dimensions</h2>
+<h3>Problem Definition</h3>
+<p>In a star schema, every foreign key in a fact table must join to its associated dimension. However, new fact data may arrive before the corresponding dimension records are available (late-arriving dimensions), causing join failures. This can happen due to:</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Streaming data:</strong></span> Facts may arrive in close proximity to dimension updates, but not exactly synchronized.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Organizational migrations:</strong></span> Entity migration triggers SCD changes; facts streamed afterward use updated dimensions that haven&#x27;t arrived yet.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Scheduling inefficiencies:</strong></span> If ETL jobs are not properly ordered, dimensions may be processed after facts.</p>
+</li>
+</ul>
+<p>Three common solutions exist:</p>
+<ol>
+<li><p>Put fact records into &quot;suspense&quot; (process now and hydrate later).</p>
+</li>
+<li><p>Use a special <code>&lt;unknown&gt;</code> dimension record.</p>
+</li>
+<li><p>Detect early-arriving facts and retry (reconciliation pattern).</p>
+</li>
+</ol>
+<h3>Solution 1: Process Now and Hydrate Later</h3>
+<p><span style="color: #59a8fb;"><strong>How it works:</strong></span> Incoming fact data is stored in a dedicated &quot;suspense&quot; or &quot;retry&quot; table with default values in dimension columns. A separate hydration process periodically tries to update missing dimension keys.</p>
+<p><span style="color: #59a8fb;"><strong>Limitations:</strong></span></p>
+<ul>
+<li><p>Does not work if dimension keys are foreign keys in fact tables (data integrity constraint).</p>
+</li>
+<li><p>If facts are written to multiple destinations, hydration must update all of them for consistency.</p>
+</li>
+<li><p>Fundamentally unpredictable — no guarantee when (or if) missing dimension data will arrive.</p>
+</li>
+<li><p>Risk of facts cycling endlessly through retries, never becoming visible to users.</p>
+</li>
+</ul>
+<h3>Solution 2: Using a Special <code>&lt;unknown&gt;</code> Dimension</h3>
+<p><span style="color: #59a8fb;"><strong>Widely used for optional relationships.</strong></span> For example, in an aviation bus matrix, a <code>dim_delay_reason</code> dimension might contain a &quot;N/A&quot; record for flights that were not delayed. Similarly, for late-arriving dimensions, create a specially-created dimension record with description &quot;Not known yet&quot;.</p>
+<ul>
+<li><p>For optional relationships, often there&#x27;s no need for a lookup; special records are allocated meaningful (negative) surrogate keys.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Limitations:</strong></span></p>
+<ul>
+<li><p>When the dimension data eventually arrives, you must go back and update fact records pointing to &quot;Not known yet&quot; — expensive and error-prone.</p>
+</li>
+<li><p>For SCD2, the natural key must be stored alongside the surrogate key in the fact record to enable later updates.</p>
+</li>
+<li><p>For SCD1, if using a surrogate key, store the hash of the dimension PK in the fact table as a FK to facilitate later correction.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3>Solution 3: Early Detection and Reconciliation Pattern (Recommended)</h3>
+<p>Detect early-arriving facts (facts for which the corresponding dimension has not arrived yet), put them on hold, and retry after a period until they are processed or exhaust retries. This ensures data quality and consistency.</p>
+<p><span style="color: #59a8fb;"><strong>Reconciliation pattern using streaming data (Kafka, Spark, Delta Lake):</strong></span></p>
+<ol>
+<li><p><span style="color: #59a8fb;"><strong>Read from source:</strong></span> Read new events (e.g., from Kafka).</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Transform and join:</strong></span> Transform facts and left-join to dimension tables.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Flag retryable:</strong></span> If dimension missing, flag the fact record as <code>is_retryable = true</code>.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Write errors:</strong></span> Write retryable records to a <code>streaming_pipeline_errors</code> delta table (append-only).</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Merge valid:</strong></span> MERGE valid (non-retryable) records into the target delta table.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Reconciliation:</strong></span> A scheduled batch job consolidates multiple failed retries for the same event into a single row in a reconciliation table, with updated retry count and status.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Retry loop:</strong></span> The streaming pipeline reads from the reconciliation table (UNION with new Kafka data) and retries the join. If still missing, write back to errors; if resolved, proceed to merge.</p>
+</li>
+</ol>
+<p><span style="color: #59a8fb;"><strong>Key advantages:</strong></span></p>
+<ul>
+<li><p>No need to put data back on Kafka (avoids duplicate events).</p>
+</li>
+<li><p>Avoids concurrent MERGE issues by using a separate reconciliation table.</p>
+</li>
+<li><p>Works with both streaming and batch ETLs.</p>
+</li>
+<li><p>Automates retries with alerting and monitoring.</p>
+</li>
+</ul>
+<p><span style="color: #59a8fb;"><strong>Example: Login Events Pipeline</strong></span></p>
+<ul>
+<li><p>Login events processed in near real-time, joined with user dimension table (updated by batch ETL).</p>
+</li>
+<li><p>If a user dimension is missing, the event is flagged retryable.</p>
+</li>
+<li><p>The reconciliation table tracks retries: e.g., event_id 29 was retried twice before successfully joining.</p>
+</li>
+<li><p>Monitoring: a spike in retryable records indicates a problem with the batch job loading dimensions.</p>
+</li>
+</ul>
+<p><span style="color: #59a8fb;"><strong>Best practices:</strong></span></p>
+<ul>
+<li><p>Partition the reconciliation table on status column to only read unresolved records.</p>
+</li>
+<li><p>Clean old error logs periodically to keep size minimal.</p>
+</li>
+<li><p>Use <code>Trigger-once</code> for batch mode to track new data via latest timestamp.</p>
+</li>
+</ul>
+<h3>Conclusion</h3>
+<p>The reconciliation pattern is easy to plug into existing pipelines with a small boilerplate framework. It provides automated retries with built-in alerting and monitoring, ensuring data quality without manual intervention.</p>
+<hr/>
+<h2>Columnar Data Formats</h2>
+<h3>Columnar vs Row-Oriented Storage</h3>
+<p>The fundamental difference is data layout on disk.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Row-oriented storage (e.g., PostgreSQL, MySQL):</strong></span> Values for a single row are stored contiguously. Ideal for OLTP workloads with frequent single-row reads, writes, and updates.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Column-oriented storage (e.g., DuckDB, Snowflake, ClickHouse):</strong></span> Values for a single column are stored contiguously. Ideal for OLAP workloads with large scans, aggregations, filtering over a subset of columns.</p>
+</li>
+</ul>
+<p><span style="color: #59a8fb;"><strong>Key differences:</strong></span></p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>I/O pattern:</strong></span> Row-oriented reads entire rows (even if only few columns needed); column-oriented reads only the required columns, minimizing I/O.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Compression:</strong></span> Column-oriented is highly effective because similar data types are stored together (low entropy). Row-oriented is less effective due to mixed types.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Query performance:</strong></span> Column-oriented is significantly faster for analytical queries on column subsets; row-oriented faster for retrieving complete records (SELECT *).</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Examples:</strong></span> MySQL, PostgreSQL (row); DuckDB, Snowflake, BigQuery, ClickHouse (column).</p>
+</li>
+</ul>
+<h3>Popular Columnar Storage Formats</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Apache Parquet:</strong></span> Open-source, widely adopted, strong compression and encoding. Use cases: cloud data lakes, Spark, Presto/Trino, AWS Athena, Azure Synapse.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Apache ORC:</strong></span> Optimized Row Columnar for Hadoop ecosystem. Use cases: Hadoop/Hive environments, legacy big data pipelines.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Apache Arrow:</strong></span> In-memory columnar format for fast analytics and cross-system data interchange. Use cases: DataFrames (Pandas, R), ML pipelines.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Delta Lake:</strong></span> Open-source storage layer that adds ACID transactions, time travel, and schema enforcement on top of Parquet. (See detailed comparison below.)</p>
+</li>
+</ul>
+<h3>When to Choose Columnar Storage</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Primary workload is OLAP:</strong></span> Queries using <code>SUM()</code>, <code>AVG()</code>, <code>GROUP BY</code> over large datasets.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Read performance over write performance:</strong></span> Columnar systems optimized for high-speed retrieval; frequent single-row updates (OLTP) are better served by row-based databases.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Wide tables, few columns queried:</strong></span> Avoid wasted I/O from reading entire rows.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Compression is a priority:</strong></span> Superior compression reduces storage costs.</p>
+</li>
+</ul>
+<h3>Compression Techniques in Column Stores</h3>
+<p>Because identical values are often adjacent, columnar storage compresses exceptionally well:</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Dictionary Encoding:</strong></span> Replaces repeated strings with integer IDs. Best for low-cardinality columns.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Run-Length Encoding (RLE):</strong></span> Stores a value once with a count of its repetitions. Best for sorted columns or long runs of identical values.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Delta Encoding:</strong></span> Stores differences between consecutive values. Best for slowly changing series like timestamps.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Frame of Reference (FOR):</strong></span> Subtracts a minimum value and stores smaller offsets. Best for integer columns with limited range.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>FSST (Fast Static Symbol Table):</strong></span> Tokenizes strings and builds a static dictionary of common substrings. Best for high-cardinality strings where dictionary encoding fails.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>General-purpose (ZSTD, LZ4, GZIP):</strong></span> Applied on top of specialized encodings for further compression.</p>
+</li>
+</ul>
+<h3>Performance Edge of Columnar Databases</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Superior compression:</strong></span> Reduces storage costs and speeds up queries by minimizing data read from disk.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Reduced I/O:</strong></span> If query needs 2 columns out of 100, reads only ~2% of total data.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Natural fit for modern CPUs:</strong></span> Data loads into CPU registers in vectors, processed in parallel using SIMD instructions.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Efficient aggregations:</strong></span> Operations like <code>SUM()</code>, <code>AVG()</code>, <code>COUNT()</code> loop over contiguous memory blocks.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Vectorized query execution:</strong></span> Process batches of thousands of values, amortizing function call overhead and leveraging CPU parallel processing.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Smart query optimization:</strong></span> Predicate pushdown applies WHERE filters at storage level; zone maps store min/max per block to skip irrelevant data.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Out-of-core processing:</strong></span> Can analyze datasets larger than RAM by offloading intermediate data to disk.</p>
+</li>
+</ul>
+<h3>Challenges and Compromises</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Updates:</strong></span> Column stores organize data into immutable column chunks. Updating a row requires rewriting entire chunks. Modern systems like ClickHouse use <span style="color: #59a8fb;"><strong>patch parts</strong></span> (lightweight deltas) to improve update performance by up to 1000×.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Denormalization:</strong></span> Historically, column stores lacked efficient joins, leading to denormalized wide tables. Modern stores have improved joins, but some denormalization still benefits query performance.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Knowing query patterns:</strong></span> Physical organization (sort keys, partitioning) dramatically impacts performance. Sorting by commonly filtered columns (e.g., timestamp) improves compression and data skipping.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Not a silver bullet:</strong></span> Not suitable for transactional workloads, SELECT * queries (row reconstruction overhead), small datasets, or high-concurrency single-row writes.</p>
+</li>
+</ul>
+<h3>Delta Lake vs. Parquet</h3>
+<p>Delta Lake is a storage layer that builds on Parquet, adding critical features.</p>
+<p><span style="color: #59a8fb;"><strong>Parquet:</strong></span></p>
+<ul>
+<li><p>Immutable, binary, columnar format.</p>
+</li>
+<li><p>Advantages: column pruning, schema in metadata, better compression than row-based formats.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Pain points with multiple Parquet files:</strong></span></p>
+<ul>
+<li><p>No ACID transactions – data corruption risk.</p>
+</li>
+<li><p>Deleting rows is extremely difficult.</p>
+</li>
+<li><p>No DML transactions or change data feed.</p>
+</li>
+<li><p>Slow file listing overhead in cloud storage (key-value stores).</p>
+</li>
+<li><p>Expensive footer reads for file skipping.</p>
+</li>
+<li><p>Renaming, dropping columns requires full table rewrite.</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><span style="color: #59a8fb;"><strong>Delta Lake:</strong></span></p>
+<ul>
+<li><p>Stores data in Parquet files plus a transaction log (<code>_delta_log</code> folder with JSON files).</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Key advantages over Parquet:</strong></span></p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>ACID transactions:</strong></span> If a cluster dies mid-write, partially written files are ignored; subsequent reads continue without error.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Fast file listing:</strong></span> File paths stored in transaction log; no cloud file listing needed.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Small file compaction:</strong></span> <code>OPTIMIZE</code> command consolidates small files automatically, with <code>data_change=False</code> flag preventing downstream reprocessing.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Predicate pushdown:</strong></span> Min/max statistics in transaction log for all files — no need to read 10,000 file footers before querying (10x–100x speed gains).</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Z-Order indexing:</strong></span> Co-locate similar data for more effective file skipping.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Schema enforcement and evolution:</strong></span> Rejects mismatched schemas; allows adding new columns without rewriting data.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Check constraints:</strong></span> Custom SQL checks on columns.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Time travel and rollback:</strong></span> Query any prior version; rollback with a single command.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Deleting rows:</strong></span> Simple <code>DELETE</code> command rewrites only impacted files; deletion vectors flag deleted rows for faster execution.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Merge transactions:</strong></span> Powerful <code>MERGE</code> command for upserts and SCDs.</p>
+</li>
+</ul>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Additional features:</strong></span> Metadata-accelerated aggregations, generated columns, Change Data Feed (CDF).</p>
+</li>
+</ul>
+<p><span style="color: #59a8fb;"><strong>When to use Parquet instead of Delta Lake:</strong></span></p>
+<ul>
+<li><p>Interfacing with systems that don&#x27;t support Delta Lake. Since Delta tables store data in Parquet files, conversion is straightforward. Delta connectors are increasingly available, so incompatibility is rare.</p>
+</li>
+</ul>
+<h3>Conclusion: Delta Lake Wins Almost Always</h3>
+<p>For any production data system, especially in the cloud, Delta Lake provides reliability, performance, and operational simplicity that plain Parquet cannot match. It makes common operations (dropping/renaming columns, deleting rows, DML) simple and efficient. Transactions and schema enforcement prevent costly corruption. The transaction log enables fast queries via Z-Ordering and file skipping.</p>
+<hr/>
+<h2>Apache Spark Architecture</h2>
+<h3>The Big Data Challenge and HDFS</h3>
+<p>Data growth requires distributed processing. Hadoop&#x27;s MapReduce was disk-intensive and slow. Spark was designed to solve these flaws.</p>
+<p><span style="color: #59a8fb;"><strong>HDFS (Hadoop Distributed File System):</strong></span></p>
+<ul>
+<li><p>Distributed, scalable, fault-tolerant file system for very large files across commodity hardware.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Core components:</strong></span></p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>NameNode:</strong></span> Master server managing file system namespace and metadata (block locations). Does not store actual data.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>DataNode:</strong></span> Worker nodes storing actual data blocks. Report to NameNode via heartbeats.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Secondary NameNode:</strong></span> Periodically merges edit log with filesystem image to prevent log growth.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Block:</strong></span> Fundamental storage unit (default 128 MB). Files split into blocks, replicated across nodes.</p>
+</li>
+</ul>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Replication:</strong></span> Default factor of 3; one replica on local node, one on different node in same rack, one on a node in a different rack (rack awareness).</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Data locality:</strong></span> Tasks scheduled on the same node where data block resides to minimize network I/O.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Tightly coupled compute and storage:</strong></span> In traditional Hadoop, HDFS data nodes also served as compute nodes, leading to inefficiencies. Modern systems separate storage and compute.</p>
+</li>
+</ul>
+<h3>Apache Spark Overview</h3>
+<p><span style="color: #59a8fb;"><strong>Apache Spark</strong></span> is a unified computing engine and set of libraries for parallel data processing on computer clusters. It provides one platform for batch, streaming, SQL, machine learning, and graph processing.</p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Key benefit:</strong></span> In-memory computing — stores intermediate data in memory, up to 100× faster than Hadoop MapReduce.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Languages supported:</strong></span> Java, Scala, Python, R, SQL.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Fault tolerance:</strong></span> Via RDD lineage (recomputation lost partitions).</p>
+</li>
+</ul>
+<p><span style="color: #59a8fb;"><strong>Origins:</strong></span></p>
+<ul>
+<li><p>2004: MapReduce model.</p>
+</li>
+<li><p>2009: Developed at UC Berkeley&#x27;s AMPLab by Matei Zaharia.</p>
+</li>
+<li><p>2010: Open sourced under BSD license.</p>
+</li>
+<li><p>2013: Joined Apache Software Foundation.</p>
+</li>
+<li><p>2014: Became top-level Apache project.</p>
+</li>
+</ul>
+<p><span style="color: #59a8fb;"><strong>Key features:</strong></span></p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Batch processing</strong></span> (Spark Core)</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Interactive queries</strong></span> (Spark SQL) — up to 100× faster than MapReduce, with cost-based optimizer (Catalyst), columnar storage, code generation.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Machine learning</strong></span> (MLlib) — scalable algorithms for classification, regression, clustering.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Graph processing</strong></span> (GraphX) — distributed graph processing (PageRank, connected components).</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Near real-time streaming</strong></span> (Structured Streaming) — micro-batch processing using DataFrame/Dataset API.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>ETL operations</strong></span> — extract, transform, load complex transformations.</p>
+</li>
+</ul>
+<h3>Architecture Components</h3>
+<p>Spark operates on a <span style="color: #59a8fb;"><strong>master-worker architecture</strong></span>:</p>
+<ol>
+<li><p><span style="color: #59a8fb;"><strong>Driver Program:</strong></span> Central coordinator containing <code>SparkContext</code>. Translates logical plans into physical execution plans, coordinates with cluster manager, monitors job execution.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Cluster Manager:</strong></span> Allocates CPU and memory resources. Supports Standalone, YARN, Apache Mesos, Kubernetes.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Executors:</strong></span> Worker processes that execute tasks, report results to driver, store cached data, handle shuffle operations.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Worker Nodes:</strong></span> Machines hosting multiple executors.</p>
+</li>
+</ol>
+<p><span style="color: #59a8fb;"><strong>Execution flow:</strong></span></p>
+<ul>
+<li><p>Driver creates <code>SparkSession</code> (entry point).</p>
+</li>
+<li><p><code>SparkContext</code> connects to cluster manager.</p>
+</li>
+<li><p>Cluster manager allocates executors.</p>
+</li>
+<li><p>Driver sends tasks to executors.</p>
+</li>
+<li><p>Executors run tasks and return results.</p>
+</li>
+</ul>
+<p><span style="color: #59a8fb;"><strong>Memory allocation in executors:</strong></span></p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Storage memory:</strong></span> Cached RDDs/DataFrames.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Execution memory:</strong></span> Shuffles, joins, sorts.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>User memory:</strong></span> User data structures (Python objects, UDFs).</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Reserved memory:</strong></span> 300 MB safety zone.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Off-heap memory (Tungsten):</strong></span> Binary format, UnsafeRow storage, reduces GC pressure.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Overhead memory:</strong></span> Auto-allocated (<code>max(384MB, 10% of executor memory)</code>), for Python worker processes, native libraries, JVM overhead.</p>
+</li>
+</ul>
+<h3>Data Abstractions: RDDs and Structured APIs</h3>
+<p><span style="color: #59a8fb;"><strong>RDD (Resilient Distributed Dataset):</strong></span></p>
+<ul>
+<li><p>Low-level API (Spark 1.x original).</p>
+</li>
+<li><p>Immutable, fault-tolerant, distributed collection of objects.</p>
+</li>
+<li><p>Tracks lineage (graph of transformations) for fault recovery.</p>
+</li>
+<li><p>Does not use Catalyst optimizer.</p>
+</li>
+<li><p>Still available for low-level use cases but not recommended default.</p>
+</li>
+</ul>
+<p><span style="color: #59a8fb;"><strong>Structured APIs (DataFrame, Dataset, SQL):</strong></span></p>
+<ul>
+<li><p>High-level, declarative: you describe <em>what</em> you want, Spark decides <em>how</em>.</p>
+</li>
+<li><p>Automatically optimized via Catalyst Optimizer.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>DataFrame:</strong></span> Schema-structured, supports SQL style API, off-heap memory, less type safety, runtime errors.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Dataset:</strong></span> Object-oriented API, strong type safety, compile-time errors, available in Scala and Java.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Best for ETL, analytics, ML workflows. DataFrames are the modern, optimized way.</strong></span></p>
+</li>
+</ul>
+<p><span style="color: #59a8fb;"><strong>RDD vs Structured API comparison:</strong></span></p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>RDD:</strong></span> Program how to do; OOPs style API; on-heap JVM objects; serialization unavoidable; GC impacts performance; strong type safety; no optimization; compile-time errors; Java/Scala/Python/R; no schema.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>DataFrame:</strong></span> Program what to do; SQL style API; off-heap also used; serialization can be avoided (off-heap); GC impact mitigated; less type safety; Catalyst optimizer; runtime errors; Java/Scala/Python/R; schema structured.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Dataset:</strong></span> Program what to do; OOPs style API; off-heap also used; serialization can be avoided (encoder); GC impact mitigated; strong type safety; optimization; compile-time errors; Scala and Java; schema structured.</p>
+</li>
+</ul>
+<h3>Execution Model: DAG, Jobs, Stages, Tasks</h3>
+<p><span style="color: #59a8fb;"><strong>DAG (Directed Acyclic Graph):</strong></span></p>
+<ul>
+<li><p>Spark&#x27;s execution blueprint. Vertices = RDDs; edges = transformations.</p>
+</li>
+<li><p>When an action is called, the DAG Scheduler splits the graph into <span style="color: #59a8fb;"><strong>stages</strong></span> at shuffle boundaries.</p>
+</li>
+<li><p>Narrow transformations (e.g., <code>map()</code>, <code>filter()</code>) — no shuffle, grouped into one stage.</p>
+</li>
+<li><p>Wide transformations (e.g., <code>reduceByKey()</code>, <code>groupByKey()</code>) — data shuffles, create stage boundaries.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Fault Tolerance:</strong></span> Lost partitions recomputed via lineage.</p>
+</li>
+</ul>
+<p><span style="color: #59a8fb;"><strong>DAG vs MapReduce:</strong></span></p>
+<ul>
+<li><p>MapReduce writes to disk after each map/reduce step; no memory caching; limited to map + reduce.</p>
+</li>
+<li><p>Spark&#x27;s DAG supports multiple levels, avoids intermediate disk writes, enables global optimization.</p>
+</li>
+</ul>
+<p><span style="color: #59a8fb;"><strong>Job, Stage, Task:</strong></span></p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Job:</strong></span> One per action (e.g., <code>count()</code>, <code>collect()</code>).</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Stage:</strong></span> Job split at shuffle boundaries. Each stage contains a set of parallel tasks.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Task:</strong></span> One per partition per stage. Smallest unit of work executed by an executor.</p>
+</li>
+</ul>
+<h3>Catalyst Optimizer and Tungsten</h3>
+<p><span style="color: #59a8fb;"><strong>Catalyst Optimizer:</strong></span></p>
+<ul>
+<li><p>Transforms SQL/DataFrame query into an optimized execution plan through phases:</p>
+<ol>
+<li><p>Analysis (resolve references, bind to catalog)</p>
+</li>
+<li><p>Logical optimization (predicate pushdown, constant folding, projection pruning)</p>
+</li>
+<li><p>Physical planning (cost model selects best plan)</p>
+</li>
+<li><p>Code generation (produce efficient JVM bytecode)</p>
+</li>
+</ol>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Key optimizations:</strong></span> Predicate pushdown, constant folding, projection pruning.</p>
+</li>
+</ul>
+<p><span style="color: #59a8fb;"><strong>Tungsten Engine:</strong></span></p>
+<ul>
+<li><p>Low-level execution engine focusing on memory and CPU efficiency.</p>
+</li>
+<li><p>Uses off-heap memory, fuses entire sections of execution plan into one Java function (no virtual function calls, no intermediate objects).</p>
+</li>
+<li><p>Catalyst decides WHAT; Tungsten decides HOW.</p>
+</li>
+</ul>
+<p><span style="color: #59a8fb;"><strong>Adaptive Query Execution (AQE):</strong></span></p>
+<ul>
+<li><p>Re-optimizes queries at runtime using actual statistics (table sizes, partition sizes, join cardinalities).</p>
+</li>
+<li><p>Dynamically adjusts execution plan to fix inaccurate pre-execution estimates.</p>
+</li>
+</ul>
+<h3>PySpark and SparkSQL</h3>
+<p><span style="color: #59a8fb;"><strong>PySpark:</strong></span></p>
+<ul>
+<li><p>Spark&#x27;s Python API. Uses Py4J bridge to communicate between Python driver and JVM driver.</p>
+</li>
+<li><p>For most DataFrame/SQL operations, data processed in JVM; data brought into Python only for actions like <code>collect()</code>, <code>toPandas()</code>, or Python/pandas UDFs.</p>
+</li>
+</ul>
+<p><span style="color: #59a8fb;"><strong>SparkSQL Examples:</strong></span></p>
+<ul>
+<li><p>Read CSV, JSON, Parquet, Delta formats using <code>spark.read.format(&quot;...&quot;)</code>.</p>
+</li>
+<li><p>Write with partitioning: <code>df.write.format(&quot;parquet&quot;).partitionBy(&quot;keyColumn&quot;).save(path)</code>.</p>
+</li>
+<li><p>Advanced queries: multi-table joins, column wrangling, deduping using window functions.</p>
+</li>
+<li><p>Spark&#x27;s built-in functions are preferred over UDFs for performance.</p>
+</li>
+</ul>
+<p><span style="color: #59a8fb;"><strong>Cheat Sheet (common operations):</strong></span></p>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Read CSV:</strong></span> <code>spark.read.format(&quot;csv&quot;).option(&quot;header&quot;,&quot;true&quot;).load(filePath)</code></p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Infer schema:</strong></span> <code>option(&quot;inferSchema&quot;,&quot;true&quot;)</code></p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Custom schema:</strong></span> <code>StructType().add(...)</code></p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Write CSV/JSON/Parquet:</strong></span> <code>df.write.format(&quot;...&quot;).mode(&quot;overwrite&quot;).save(path)</code></p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Read Delta:</strong></span> <code>spark.sql(&quot;SELECT * FROM delta.</code>/path/to/delta<code>&quot;)</code></p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Write Delta:</strong></span> <code>df.write.format(&quot;delta&quot;).partitionBy(&quot;col&quot;).save(path)</code></p>
+</li>
+</ul>
+<h3>Spark vs Hadoop</h3>
+<p>Spark is often used with Hadoop for storage (HDFS), combining strengths.</p>
+<h3>Key Optimization Best Practices</h3>
+<ul>
+<li><p><span style="color: #59a8fb;"><strong>Efficient file formats:</strong></span> Use Parquet or ORC; avoid CSV for large datasets.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Cache wisely:</strong></span> Persist DataFrames reused multiple times; unpersist when done.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Partition and bucket data:</strong></span> Improve skipping of irrelevant data and speed up joins.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Minimize data volume:</strong></span> Push filters early; avoid expensive sorts when unnecessary.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Repartition/coalesce:</strong></span> Tune partition count to match cluster resources and data size.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Avoid UDFs:</strong></span> Use built-in Spark functions (bypass Catalyst if UDF).</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Cluster autoscaling (Databricks):</strong></span> Dynamically adjust worker nodes based on workload for cost optimization.</p>
+</li>
+</ul>
+<h3>Key Takeaways</h3>
+<ul>
+<li><p>Spark is a <span style="color: #59a8fb;"><strong>unified engine</strong></span> for batch, streaming, SQL, ML, and graph processing.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Lazy evaluation + DAG</strong></span> allows building an optimized execution plan before processing.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Three-tier architecture:</strong></span> Driver → Cluster Manager → Executors.</p>
+</li>
+<li><p><span style="color: #59a8fb;"><strong>Automatic optimization:</strong></span> Catalyst (logical/physical), Tungsten (execution), AQE (runtime).</p>
+</li>
+</ul>
+
+</div>
+</body>
+</html>
